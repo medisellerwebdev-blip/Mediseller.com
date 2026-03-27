@@ -1,0 +1,666 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { Badge } from '../components/ui/badge';
+import { Input } from '../components/ui/input';
+import { toast } from 'sonner';
+import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
+import { useCurrency } from '../context/CurrencyContext';
+import { 
+  LayoutDashboard, 
+  Package, 
+  ShoppingBag, 
+  User, 
+  Plus, 
+  Edit, 
+  Trash2, 
+  Search,
+  Loader2,
+  ExternalLink,
+  ChevronRight,
+  Home,
+  Mail,
+  Stethoscope,
+  FileCheck,
+  FileText,
+  Settings,
+  AlertCircle,
+  Truck,
+  CheckCircle2,
+  History,
+  MessageSquare,
+  TrendingUp,
+  Ticket,
+  Users as UsersIcon
+} from 'lucide-react';
+import HomeEditor from '../components/admin/HomeEditor';
+import AboutEditor from '../components/admin/AboutEditor';
+import ContactEditor from '../components/admin/ContactEditor';
+import GlobalSettingsEditor from '../components/admin/GlobalSettingsEditor';
+import ProductEditor from '../components/admin/ProductEditor';
+import InquiryManager from '../components/admin/InquiryManager';
+import ConsultationManager from '../components/admin/ConsultationManager';
+import PrescriptionManager from '../components/admin/PrescriptionManager';
+import LegalEditor from '../components/admin/LegalEditor';
+import AnalyticsDashboard from '../components/admin/AnalyticsDashboard';
+import UserManager from '../components/admin/UserManager';
+import PromotionManager from '../components/admin/PromotionManager';
+import BlogManager from '../components/admin/BlogManager';
+import { Sheet, SheetContent, SheetTrigger } from '../components/ui/sheet';
+
+const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+export default function AdminDashboardPage() {
+  const { logout } = useAuth();
+  const { formatPrice } = useCurrency();
+  const [products, setProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('products');
+  
+  // Product Editor State
+  const [isProductEditorOpen, setIsProductEditorOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const [prodRes, orderRes] = await Promise.all([
+        fetch(`${API_URL}/api/products?limit=100`, { credentials: 'include' }),
+        fetch(`${API_URL}/api/admin/orders`, { credentials: 'include' })
+      ]);
+
+      if (prodRes.ok) setProducts(await prodRes.json());
+      if (orderRes.ok) setOrders(await orderRes.json());
+      
+      if (prodRes.status === 403 || orderRes.status === 403) {
+        toast.error('Admin access required. Please login.');
+        navigate('/admin/login');
+      }
+    } catch (error) {
+      console.error('Fetch error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteProduct = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this product?')) return;
+    try {
+      const res = await fetch(`${API_URL}/api/admin/products/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (res.ok) {
+        toast.success('Product deleted');
+        fetchData();
+      }
+    } catch (error) {
+      toast.error('Failed to delete');
+    }
+  };
+
+  const updateOrderStatus = async (orderId, newStatus) => {
+    try {
+      const res = await fetch(`${API_URL}/api/admin/orders/${orderId}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+        credentials: 'include'
+      });
+      if (res.ok) {
+        toast.success(`Order status updated to ${newStatus}`);
+        fetchData();
+      }
+    } catch (error) {
+      toast.error('Failed to update order status');
+    }
+  };
+
+  const handleAddProduct = () => {
+    setEditingProduct(null);
+    setIsProductEditorOpen(true);
+  };
+
+  const handleEditProduct = (product) => {
+    setEditingProduct(product);
+    setIsProductEditorOpen(true);
+  };
+
+  const handleViewOrderDetails = (order) => {
+    setSelectedOrder(order);
+    setIsOrderModalOpen(true);
+  };
+
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+    </div>
+  );
+
+  const filteredProducts = products.filter(p => 
+    p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    p.brand.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const navItems = [
+    { id: 'analytics', label: 'Analytics', icon: TrendingUp, group: 'Business' },
+    { id: 'products', label: 'Products', icon: Package, group: 'Inventory' },
+    { id: 'orders', label: 'Orders', icon: ShoppingBag, group: 'Business' },
+    { id: 'users', label: 'Customers', icon: UsersIcon, group: 'Business' },
+    { id: 'promotions', label: 'Promotions', icon: Ticket, group: 'Business' },
+    { id: 'blog', label: 'Blog CMS', icon: FileText, group: 'CMS' },
+    { id: 'home', label: 'Home Page', icon: Home, group: 'CMS' },
+    { id: 'about', label: 'About Page', icon: User, group: 'CMS' },
+    { id: 'contact', label: 'Contact Page', icon: Mail, group: 'CMS' },
+    { id: 'legal', label: 'Legal Pages', icon: FileText, group: 'CMS' },
+    { id: 'queries', label: 'Inquiries', icon: MessageSquare, group: 'Support' },
+    { id: 'consultations', label: 'Consultations', icon: Stethoscope, group: 'Support' },
+    { id: 'prescriptions', label: 'Prescriptions', icon: FileCheck, group: 'Support' },
+    { id: 'global', label: 'Global Settings', icon: Settings, group: 'System' },
+  ];
+
+  const sidebarGroups = [...new Set(navItems.map(item => item.group))];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-slate-500 font-medium">Loading Management Portal...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex">
+      {/* Sidebar */}
+      <div className="w-68 bg-slate-900 text-white min-h-screen p-6 hidden md:block sticky top-0 h-screen overflow-y-auto">
+        <div className="flex items-center gap-3 mb-10 px-2">
+          <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+            <Package className="w-5 h-5 text-white" />
+          </div>
+          <span className="font-heading font-bold text-xl tracking-tight text-white">MediAdmin v2.0</span>
+        </div>
+        
+        <nav className="space-y-8">
+          {sidebarGroups.map(group => (
+            <div key={group}>
+              <div className="px-3 mb-3 text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold">{group}</div>
+              <div className="space-y-1">
+                {navItems.filter(item => item.group === group).map(item => (
+                  <button 
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)} 
+                    className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${activeTab === item.id ? 'bg-primary text-white font-semibold shadow-lg shadow-primary/20' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                  >
+                    <item.icon className={`w-4 h-4 ${activeTab === item.id ? 'text-white' : 'text-slate-500'}`} />
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </nav>
+
+        <div className="mt-12 pt-8 border-t border-slate-800">
+          <Link to="/" target="_blank" className="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white text-sm">
+            <ExternalLink className="w-4 h-4 text-slate-500" />
+            View Live Website
+          </Link>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 min-h-screen overflow-y-auto p-4 md:p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+            <div className="flex items-center justify-between w-full md:w-auto">
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold font-heading text-slate-900 tracking-tight">
+                  {navItems.find(i => i.id === activeTab)?.label}
+                </h1>
+                <p className="text-slate-500 text-xs md:text-sm mt-1">Management Dashboard & Content Editor</p>
+              </div>
+              
+              {/* Mobile Tab Switcher */}
+              <div className="md:hidden">
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" size="icon" className="rounded-xl border-slate-200">
+                      <Settings className="w-5 h-5 text-slate-600" />
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className="w-[280px] bg-slate-900 text-white border-slate-800 p-0">
+                    <div className="p-6">
+                      <div className="flex items-center gap-3 mb-8 px-2">
+                        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                          <Package className="w-4 h-4 text-white" />
+                        </div>
+                        <span className="font-heading font-bold text-lg text-white">MediAdmin</span>
+                      </div>
+                      <nav className="space-y-6">
+                        {sidebarGroups.map(group => (
+                          <div key={group}>
+                            <div className="px-3 mb-2 text-[10px] uppercase tracking-widest text-slate-500 font-bold">{group}</div>
+                            <div className="space-y-1">
+                              {navItems.filter(item => item.group === group).map(item => (
+                                <button 
+                                  key={item.id}
+                                  onClick={() => {
+                                    setActiveTab(item.id);
+                                    // Close sheet by clicking overlay if needed, but SheetContent usually handles it
+                                  }} 
+                                  className={`flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm transition-colors ${activeTab === item.id ? 'bg-primary text-white font-semibold' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                                >
+                                  <item.icon className={`w-4 h-4 ${activeTab === item.id ? 'text-white' : 'text-slate-500'}`} />
+                                  {item.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </nav>
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              </div>
+            </div>
+            
+            <div className="flex gap-4">
+               <Badge variant="outline" className="bg-white px-3 py-1 border-slate-200 text-slate-500">
+                 System Active • Beta
+               </Badge>
+            </div>
+          </div>
+
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <TabsContent value="products">
+              <Card className="border-slate-200 shadow-sm rounded-2xl overflow-hidden">
+                <CardHeader className="flex flex-row items-center justify-between border-b bg-white py-6">
+                  <div>
+                    <CardTitle className="text-xl">Inventory Management</CardTitle>
+                    <p className="text-xs text-slate-400 mt-1 uppercase font-bold tracking-widest">{products.length} Products Found</p>
+                  </div>
+                  <Button className="rounded-full px-6 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20" onClick={handleAddProduct}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Product
+                  </Button>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="p-6 bg-slate-50/50 border-b">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                      <Input 
+                        placeholder="Search by medicine name, generic name, or brand..." 
+                        className="pl-10 rounded-xl bg-white border-slate-200 shadow-sm h-11"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left">
+                      <thead className="text-[10px] text-slate-400 uppercase tracking-widest bg-slate-50/50">
+                        <tr>
+                          <th className="px-6 py-4">Product Details</th>
+                          <th className="px-6 py-4">Category</th>
+                          <th className="px-6 py-4">Price</th>
+                          <th className="px-6 py-4">Status</th>
+                          <th className="px-6 py-4 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 bg-white">
+                        {filteredProducts.map((product) => (
+                          <tr key={product.product_id} className="hover:bg-slate-50/50 transition-colors group">
+                            <td className="px-6 py-5">
+                              <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-xl bg-slate-100 flex-shrink-0 overflow-hidden border border-slate-200 shadow-sm">
+                                  <img src={product.image_url} alt="" className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                                </div>
+                                <div>
+                                  <p className="font-bold text-slate-900 leading-none mb-1">{product.name}</p>
+                                  <p className="text-[11px] text-slate-400 font-medium uppercase">{product.brand} • {product.generic_name}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-5">
+                              <Badge variant="outline" className="bg-slate-50 text-slate-500 border-slate-200 text-[10px] px-2 py-0.5 rounded-md">{product.category}</Badge>
+                            </td>
+                            <td className="px-6 py-5">
+                               <div className="flex flex-col">
+                                 <span className="font-bold text-slate-900">${product.price}</span>
+                                 {product.original_price > product.price && (
+                                   <span className="text-[10px] text-slate-400 line-through">${product.original_price}</span>
+                                 )}
+                               </div>
+                            </td>
+                            <td className="px-6 py-5">
+                              <Badge className={product.in_stock ? "bg-green-100 text-green-700 border-0 text-[10px]" : "bg-red-100 text-red-700 border-0 text-[10px]"}>
+                                {product.in_stock ? 'Available' : 'Out of Stock'}
+                              </Badge>
+                            </td>
+                            <td className="px-6 py-5 text-right">
+                              <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-8 w-8 text-slate-400 hover:text-blue-600 hover:bg-blue-50"
+                                  onClick={() => handleEditProduct(product)}
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-8 w-8 text-slate-400 hover:text-red-500 hover:bg-red-50"
+                                  onClick={() => deleteProduct(product.product_id)}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="orders">
+              <Card className="border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                <CardHeader className="bg-white border-b py-6">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <CardTitle>Global Orders</CardTitle>
+                      <p className="text-xs text-slate-400 mt-1 uppercase font-bold tracking-widest">Order Processing Pipeline</p>
+                    </div>
+                    <Badge className="bg-slate-100 text-slate-600 border-0">{orders.length} Total</Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6">
+                  {orders.length === 0 ? (
+                    <div className="text-center py-12 text-slate-500">
+                      <ShoppingBag className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                      No orders found in the system.
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {orders.map(order => (
+                        <div key={order.order_id} className="group border rounded-2xl bg-white hover:border-primary/20 hover:shadow-md transition-all">
+                          <div className="p-6">
+                            <div className="flex flex-wrap justify-between items-start gap-4">
+                              <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center border border-slate-100">
+                                  <ShoppingBag className="w-5 h-5 text-slate-400" />
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <p className="font-bold text-slate-900 text-lg">{order.order_id}</p>
+                                    <Badge className={`${
+                                      order.status === 'pending' ? 'bg-amber-100 text-amber-700' : 
+                                      order.status === 'delivered' ? 'bg-green-100 text-green-700' : 
+                                      'bg-blue-100 text-blue-700'
+                                    } border-0 text-[10px] capitalize`}>
+                                      {order.status}
+                                    </Badge>
+                                  </div>
+                                  <p className="text-sm text-slate-500 mt-0.5">
+                                    {order.shipping_address.full_name} • {new Date(order.created_at).toLocaleDateString()}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-2xl font-bold text-slate-900">${order.total}</p>
+                                <p className="text-xs text-slate-400 font-bold uppercase">{order.items.length} Medications</p>
+                              </div>
+                            </div>
+                            
+                            <div className="mt-6 flex flex-wrap gap-2 pt-4 border-t">
+                              <select 
+                                className="text-xs font-bold border rounded-lg px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary"
+                                value={order.status}
+                                onChange={(e) => updateOrderStatus(order.order_id, e.target.value)}
+                              >
+                                <option value="pending">Pending</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered / Complete</option>
+                                <option value="cancelled">Cancelled</option>
+                              </select>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="rounded-lg h-9 text-xs"
+                                onClick={() => handleViewOrderDetails(order)}
+                              >
+                                View Details
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="analytics">
+              <AnalyticsDashboard />
+            </TabsContent>
+
+            <TabsContent value="users">
+              <UserManager />
+            </TabsContent>
+
+            <TabsContent value="promotions">
+              <PromotionManager />
+            </TabsContent>
+
+            <TabsContent value="blog">
+              <BlogManager />
+            </TabsContent>
+
+            <TabsContent value="home">
+              <HomeEditor />
+            </TabsContent>
+
+            <TabsContent value="about">
+              <AboutEditor />
+            </TabsContent>
+
+            <TabsContent value="contact">
+              <ContactEditor />
+            </TabsContent>
+
+            <TabsContent value="legal">
+              <LegalEditor />
+            </TabsContent>
+
+            <TabsContent value="global">
+              <GlobalSettingsEditor />
+            </TabsContent>
+
+            <TabsContent value="queries">
+               <InquiryManager />
+            </TabsContent>
+
+            <TabsContent value="consultations">
+               <ConsultationManager />
+            </TabsContent>
+
+            <TabsContent value="prescriptions">
+               <PrescriptionManager />
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+
+      {/* Product Editor Modal */}
+      {isProductEditorOpen && (
+        <ProductEditor 
+          product={editingProduct} 
+          onSave={() => {
+            setIsProductEditorOpen(false);
+            fetchData();
+          }} 
+          onClose={() => setIsProductEditorOpen(false)} 
+        />
+      )}
+
+      {/* Order Details Modal */}
+      <Sheet open={isOrderModalOpen} onOpenChange={setIsOrderModalOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-xl p-0 overflow-y-auto">
+          {selectedOrder && (
+            <div className="flex flex-col h-full">
+              <div className="p-6 border-b bg-slate-50">
+                <div className="flex items-center justify-between mb-2">
+                  <Badge className={`${
+                    selectedOrder.status === 'pending' ? 'bg-amber-100 text-amber-700' : 
+                    selectedOrder.status === 'delivered' ? 'bg-green-100 text-green-700' : 
+                    'bg-blue-100 text-blue-700'
+                  } border-0 text-[10px] uppercase font-bold tracking-widest`}>
+                    {selectedOrder.status}
+                  </Badge>
+                  <span className="text-xs text-slate-400 font-medium">#{selectedOrder.order_id}</span>
+                </div>
+                <h2 className="text-2xl font-bold font-heading text-slate-900">Order Details</h2>
+                <p className="text-slate-500 text-sm mt-1">Placed on {new Date(selectedOrder.created_at).toLocaleString()}</p>
+              </div>
+
+              <div className="p-6 space-y-8 flex-1 pb-10">
+                {/* Customer Info */}
+                <section>
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4 px-1">Customer Information</h3>
+                  <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-[10px] text-slate-400 uppercase font-bold mb-1">Full Name</p>
+                        <p className="text-sm font-semibold text-slate-900">{selectedOrder.shipping_address.full_name}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-slate-400 uppercase font-bold mb-1">Email</p>
+                        <p className="text-sm font-semibold text-slate-900">{selectedOrder.shipping_address.email}</p>
+                      </div>
+                      <div className="col-span-2">
+                        <p className="text-[10px] text-slate-400 uppercase font-bold mb-1">Phone</p>
+                        <p className="text-sm font-semibold text-slate-900">{selectedOrder.shipping_address.phone}</p>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Shipping Address */}
+                <section>
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4 px-1">Shipping Address</h3>
+                  <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                    <p className="text-sm font-medium text-slate-700 leading-relaxed">
+                      {selectedOrder.shipping_address.address_line1}
+                      {selectedOrder.shipping_address.address_line2 && <><br />{selectedOrder.shipping_address.address_line2}</>}
+                      <br />{selectedOrder.shipping_address.city}, {selectedOrder.shipping_address.state} {selectedOrder.shipping_address.postal_code}
+                      <br />{selectedOrder.shipping_address.country}
+                    </p>
+                  </div>
+                </section>
+
+                {/* Items */}
+                <section>
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4 px-1">Medications Ordered</h3>
+                  <div className="space-y-3">
+                    {selectedOrder.items.map((item, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-4 rounded-xl border border-slate-100">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+                            <ShoppingBag className="w-4 h-4 text-slate-400" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-slate-900">{item.name || 'Product ID: ' + item.product_id}</p>
+                            <p className="text-xs text-slate-500">Qty: {item.quantity} • ${item.price}</p>
+                          </div>
+                        </div>
+                        <p className="text-sm font-bold text-slate-900">${(item.price * item.quantity).toFixed(2)}</p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                {/* Totals */}
+                <section className="bg-slate-900 rounded-2xl p-6 text-white shadow-xl shadow-primary/10">
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm text-slate-400">
+                      <span>Subtotal</span>
+                      <span>${selectedOrder.subtotal.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-slate-400">
+                      <span>Shipping</span>
+                      <span>${selectedOrder.shipping_cost.toFixed(2)}</span>
+                    </div>
+                    <div className="pt-3 border-t border-slate-800 flex justify-between items-center">
+                      <span className="font-bold">Total Amount</span>
+                      <span className="text-2xl font-bold text-white">
+                        {formatPrice(selectedOrder.total, selectedOrder.currency === 'INR' ? selectedOrder.total : null)}
+                      </span>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Status Update Controls */}
+                <section className="bg-slate-50 rounded-2xl p-6 border-2 border-slate-200">
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-slate-900 mb-4 px-1">Manage Order Status</h3>
+                  <div className="flex flex-col gap-3">
+                    <div className="flex gap-2">
+                       <select 
+                          className="flex-1 text-sm font-bold border-2 rounded-xl px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-primary"
+                          value={selectedOrder.status}
+                          onChange={(e) => {
+                            const newStatus = e.target.value;
+                            setSelectedOrder({...selectedOrder, status: newStatus});
+                          }}
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="shipped">Shipped</option>
+                          <option value="delivered">Delivered / Complete</option>
+                          <option value="cancelled">Cancelled</option>
+                        </select>
+                        <Button 
+                          className="px-6 rounded-xl font-bold"
+                          onClick={() => updateOrderStatus(selectedOrder.order_id, selectedOrder.status)}
+                        >
+                          Save
+                        </Button>
+                    </div>
+                    {selectedOrder.status !== 'delivered' && (
+                      <Button 
+                        variant="soft" 
+                        className="w-full py-6 rounded-xl font-bold bg-green-50 text-green-700 hover:bg-green-100 border border-green-200"
+                        onClick={() => updateOrderStatus(selectedOrder.order_id, 'delivered')}
+                      >
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        Mark as Complete Now
+                      </Button>
+                    )}
+                  </div>
+                </section>
+              </div>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
+}

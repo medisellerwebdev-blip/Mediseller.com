@@ -1,0 +1,406 @@
+﻿{
+    "active":  true,
+    "header":  {
+                   "logo_text":  "MediSeller",
+                   "logo_url":  null,
+                   "nav_items":  [
+                                     {
+                                         "label":  "Categories",
+                                         "path":  "/products#categories"
+                                     },
+                                     {
+                                         "label":  "All Products",
+                                         "path":  "/products"
+                                     },
+                                     {
+                                         "label":  "Expert Consultation",
+                                         "path":  "/consultation"
+                                     },
+                                     {
+                                         "label":  "About Us",
+                                         "path":  "/about"
+                                     }
+                                 ]
+               },
+    "hero":  {
+                 "badge":  "45+ Years of Heritage",
+                 "title":  "Global Access to Authentic Medicine",
+                 "subtitle":  "Secure 100% original generic medications from India. Save over 60% with insured delivery to 30+ countries. Trusted by patients worldwide for nearly half a century.",
+                 "primary_cta":  {
+                                     "text":  "View All Products",
+                                     "path":  "/products"
+                                 },
+                 "secondary_cta":  {
+                                       "text":  "Talk to Expert",
+                                       "path":  "/consultation"
+                                   },
+                 "image_url":  "https://images.unsplash.com/photo-1576091358783-a212ec293ff3?w=800",
+                 "background_image_url":  null,
+                 "patients_count":  "150K+",
+                 "rating":  4.9,
+                 "trust_avatars":  [
+                                       "https://i.pravatar.cc/100?img=11",
+                                       "https://i.pravatar.cc/100?img=12",
+                                       "https://i.pravatar.cc/100?img=13",
+                                       "https://i.pravatar.cc/100?img=14"
+                                   ],
+                 "floating_card_title":  "100% Authentic",
+                 "floating_card_subtitle":  "Verified Products",
+                 "floating_card_icon":  "CheckCircle",
+                 "savings_badge_percentage":  "60%",
+                 "savings_badge_text":  "Average Savings"
+             },
+    "stats":  {
+                  "items":  [
+                                {
+                                    "value":  "45+",
+                                    "label":  "Years of Excellence"
+                                },
+                                {
+                                    "value":  "30+",
+                                    "label":  "Countries Served"
+                                },
+                                {
+                                    "value":  "150K+",
+                                    "label":  "Happy Customers"
+                                },
+                                {
+                                    "value":  "99%",
+                                    "label":  "Delivery Rate"
+                                }
+                            ]
+              },
+    "categories_section":  {
+                               "badge":  "Browse by Category",
+                               "title":  "Life-Saving \u0026 Lifestyle Medications",
+                               "subtitle":  "We specialize in affordable generic medications for serious health conditions. All products are sourced from licensed manufacturers.",
+                               "cards":  [
+                                             {
+                                                 "id":  "cat_0ae9de",
+                                                 "title":  "Cancer Medications",
+                                                 "subtitle":  "Life-saving oncology treatments",
+                                                 "icon_name":  "Ribbon",
+                                                 "color_class":  "from-pink-500/10 to-pink-500/5",
+                                                 "path":  "/products?category=Cancer"
+                                             },
+                                             {
+                                                 "id":  "cat_35a057",
+                                                 "title":  "HIV/AIDS Treatment",
+                                                 "subtitle":  "Antiretroviral therapies",
+                                                 "icon_name":  "Activity",
+                                                 "color_class":  "from-purple-500/10 to-purple-500/5",
+                                                 "path":  "/products?category=HIV"
+                                             },
+                                             {
+                                                 "id":  "cat_de9695",
+                                                 "title":  "Hepatitis",
+                                                 "subtitle":  "Cure hepatitis C in 12 weeks",
+                                                 "icon_name":  "ShieldAlert",
+                                                 "color_class":  "from-teal-500/10 to-teal-500/5",
+                                                 "path":  "/products?category=Hepatitis"
+                                             },
+                                             {
+                                                 "id":  "cat_5273b0",
+                                                 "title":  "Erectile Dysfunction",
+                                                 "subtitle":  "Trusted ED medications",
+                                                 "icon_name":  "Zap",
+                                                 "color_class":  "from-blue-500/10 to-blue-500/5",
+                                                 "path":  "/products?category=ED"
+                                             },
+                                             {
+                                                 "id":  "cat_fb9943",
+                                                 "title":  "Diabetes \u0026 Insulin",
+                                                 "subtitle":  "Insulin and oral medications",
+                                                 "icon_name":  "Stethoscope",
+                                                 "color_class":  "from-orange-500/10 to-orange-500/5",
+                                                 "path":  "/products?category=Diabetes"
+                                             },
+                                             {
+                                                 "id":  "cat_2441aa",
+                                                 "title":  "Weight Loss",
+                                                 "subtitle":  "FDA-approved solutions",
+                                                 "icon_name":  "Scale",
+                                                 "color_class":  "from-green-500/10 to-green-500/5",
+                                                 "path":  "/products?category=WeightLoss"
+                                             }
+                                         ]
+                           },
+    "how_it_works":  {
+                         "badge":  "How It Works",
+                         "title":  "Simple 4-Step Process",
+                         "subtitle":  "Getting your medications delivered is easy. Follow these simple steps to start saving.",
+                         "steps":  [
+                                       {
+                                           "step":  1,
+                                           "title":  "Browse Products",
+                                           "description":  "Find the medications you need from our extensive catalog."
+                                       },
+                                       {
+                                           "step":  2,
+                                           "title":  "Upload Prescription",
+                                           "description":  "Our pharmacists verify your prescription for safety."
+                                       },
+                                       {
+                                           "step":  3,
+                                           "title":  "Secure Payment",
+                                           "description":  "Pay securely using various international methods."
+                                       },
+                                       {
+                                           "step":  4,
+                                           "title":  "Global Delivery",
+                                           "description":  "Receive your medication at your doorstep in 7-14 days."
+                                       }
+                                   ]
+                     },
+    "testimonials":  {
+                         "badge":  "Customer Stories",
+                         "title":  "What Our Customers Say",
+                         "subtitle":  "Trusted by thousands of patients worldwide. Here\u0027s what they have to say about us.",
+                         "items":  [
+                                       {
+                                           "name":  "Robert Mitchell",
+                                           "country":  "United States",
+                                           "comment":  "The savings are incredible - over $2,000 per month! The quality is exactly the same as what I was getting at my local pharmacy.",
+                                           "rating":  5,
+                                           "avatar_url":  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100"
+                                       },
+                                       {
+                                           "name":  "Sarah Thompson",
+                                           "country":  "United Kingdom",
+                                           "comment":  "Helping me get Hep C medications at 99% less cost. Forever grateful for the support and guidance throughout the process.",
+                                           "rating":  5,
+                                           "avatar_url":  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100"
+                                       }
+                                   ]
+                     },
+    "faq":  {
+                "badge":  "FAQ",
+                "title":  "Frequently Asked Questions",
+                "items":  [
+                              {
+                                  "question":  "Are the medications real?",
+                                  "answer":  "Yes, we only source from FDA-approved Indian manufacturers."
+                              },
+                              {
+                                  "question":  "How long does shipping take?",
+                                  "answer":  "Usually 7-14 business days globally."
+                              },
+                              {
+                                  "question":  "Do I need a prescription?",
+                                  "answer":  "Yes, for all prescription-only medications, a valid RX is required."
+                              }
+                          ]
+            },
+    "manufacturers":  [
+                          "Sun Pharma",
+                          "Cipla",
+                          "Dr. Reddy\u0027s",
+                          "Lupin",
+                          "Aurobindo",
+                          "Zydus",
+                          "Torrent",
+                          "Biocon",
+                          "Glenmark",
+                          "Hetero",
+                          "Pfizer",
+                          "Novartis",
+                          "Roche",
+                          "Gilead",
+                          "Merck"
+                      ],
+    "about_page":  {
+                       "hero_badge":  "45+ Years of Excellence",
+                       "hero_title":  "Trusted Pharmaceutical Partner Since 1981",
+                       "hero_subtitle":  "MediSeller has been at the forefront of pharmaceutical distribution for over four decades, connecting patients with affordable, authentic medications.",
+                       "mission_title":  "Our Mission",
+                       "mission_text":  "To make life-saving medications accessible and affordable to patients worldwide. We believe health is a human right, not a privilege.",
+                       "vision_title":  "Our Vision",
+                       "vision_text":  "To become the most trusted global online pharmacy, known for authenticity, affordability, and excellent customer care.",
+                       "stats":  [
+                                     {
+                                         "value":  "45+",
+                                         "label":  "Years Experience"
+                                     },
+                                     {
+                                         "value":  "150K+",
+                                         "label":  "Patients Served"
+                                     },
+                                     {
+                                         "value":  "30+",
+                                         "label":  "Countries"
+                                     },
+                                     {
+                                         "value":  "99%",
+                                         "label":  "Delivery Rate"
+                                     }
+                                 ],
+                       "advantage_section":  [
+                                                 {
+                                                     "title":  "100% Authentic Products",
+                                                     "description":  "Directly sourced from licensed manufacturers.",
+                                                     "icon_name":  "Shield"
+                                                 },
+                                                 {
+                                                     "title":  "Global Delivery",
+                                                     "description":  "Express air shipping to over 30 countries.",
+                                                     "icon_name":  "Truck"
+                                                 },
+                                                 {
+                                                     "title":  "60%+ Savings",
+                                                     "description":  "Significant cost savings on quality generic alternatives.",
+                                                     "icon_name":  "Award"
+                                                 }
+                                             ],
+                       "compliance_section":  {
+                                                  "title":  "Licensed \u0026 Certified",
+                                                  "text":  "MediSeller (A Unit of Medicare) is a government-certified global exporter.",
+                                                  "gst":  "07AAIPG2896A1ZV",
+                                                  "iec":  "0514067152"
+                                              },
+                       "bottom_cta":  {
+                                          "title":  "Ready to Get Started?",
+                                          "text":  "Browse our catalog of authentic medications today.",
+                                          "primary_button":  {
+                                                                 "text":  "Browse Products",
+                                                                 "path":  "/products"
+                                                             },
+                                          "secondary_button":  {
+                                                                   "text":  "Talk to Expert",
+                                                                   "path":  "/consultation"
+                                                               }
+                                      },
+                       "timeline_title":  "Our Journey",
+                       "timeline_subtitle":  "45+ years of growth, trust, and commitment to patient care",
+                       "timeline":  [
+                                        {
+                                            "year":  "1981",
+                                            "event":  "Founded in Chandni Chowk, New Delhi"
+                                        },
+                                        {
+                                            "year":  "1995",
+                                            "event":  "Started international distribution"
+                                        },
+                                        {
+                                            "year":  "2005",
+                                            "event":  "Reached 50,000 patients served"
+                                        },
+                                        {
+                                            "year":  "2015",
+                                            "event":  "Expanded to 20+ countries"
+                                        },
+                                        {
+                                            "year":  "2024",
+                                            "event":  "Serving 150,000+ patients worldwide"
+                                        }
+                                    ]
+                   },
+    "contact_page":  {
+                         "hero_title":  "Contact Us",
+                         "hero_subtitle":  "Have questions? We\u0027re here to help. Reach out to our team and we\u0027ll get back to you as soon as possible.",
+                         "address":  "No. 1520/110, First Floor, Jagson Pal Building, Bhagirath Palace, Chandni Chowk, New Delhi - 110006",
+                         "phone":  "+1 (234) 567-890",
+                         "email":  "support@mediseller.com",
+                         "business_hours":  [
+                                                "Monday - Friday: 9:00 AM - 6:00 PM IST",
+                                                "Saturday: 10:00 AM - 4:00 PM IST",
+                                                "Sunday: Closed"
+                                            ],
+                         "whatsapp_number":  "1234567890",
+                         "whatsapp_title":  "WhatsApp Support",
+                         "whatsapp_description":  "Get instant support via WhatsApp for quick queries and order updates."
+                     },
+    "footer":  {
+                   "brand_description":  "MediSeller (A Unit of Medicare) is a government-certified global exporter and wholesaler of authentic pharmaceutical products.",
+                   "social_links":  [
+                                        {
+                                            "platform":  "Facebook",
+                                            "url":  "https://facebook.com"
+                                        },
+                                        {
+                                            "platform":  "Twitter",
+                                            "url":  "https://twitter.com"
+                                        },
+                                        {
+                                            "platform":  "LinkedIn",
+                                            "url":  "https://linkedin.com"
+                                        }
+                                    ],
+                   "footer_links":  [
+                                        {
+                                            "label":  "Privacy Policy",
+                                            "path":  "/privacy"
+                                        },
+                                        {
+                                            "label":  "Terms of Service",
+                                            "path":  "/terms"
+                                        },
+                                        {
+                                            "label":  "Refund Policy",
+                                            "path":  "/refund"
+                                        }
+                                    ]
+               },
+    "price_comparison":  {
+                             "title":  "Save Up to 90% on Life-Saving Medications",
+                             "subtitle":  "Compare our prices with international brand names. We provide the same active ingredients at a fraction of the cost.",
+                             "rows":  [
+                                          {
+                                              "medication":  "Gleevec (Imatinib) 400mg",
+                                              "brand_price":  "$2,850",
+                                              "mediseller_price":  "$45",
+                                              "savings":  "98%"
+                                          },
+                                          {
+                                              "medication":  "Revlimid (Lenalidomide) 25mg",
+                                              "brand_price":  "$890",
+                                              "mediseller_price":  "$85",
+                                              "savings":  "90%"
+                                          },
+                                          {
+                                              "medication":  "Sovaldi (Sofosbuvir) 400mg",
+                                              "brand_price":  "$12,000",
+                                              "mediseller_price":  "$180",
+                                              "savings":  "98%"
+                                          }
+                                      ]
+                         },
+    "prescription_cta":  {
+                             "title":  "Have a Prescription?",
+                             "text":  "Upload your prescription and our experts will help you find the right medications at the best prices.",
+                             "button_text":  "Upload Prescription Now"
+                         },
+    "whatsapp_communities":  {
+                                 "title":  "Join Our Medical Communities",
+                                 "communities":  [
+                                                     {
+                                                         "title":  "Oncology Support",
+                                                         "description":  "Connect with other cancer patients and experts.",
+                                                         "link":  "#",
+                                                         "icon":  "Ribbon"
+                                                     },
+                                                     {
+                                                         "title":  "Global Pharmacy Updates",
+                                                         "description":  "Get news on new medications and availability.",
+                                                         "link":  "#",
+                                                         "icon":  "Globe"
+                                                     }
+                                                 ]
+                             },
+    "bottom_cta":  {
+                       "title":  "Need Help Finding Your Medication?",
+                       "text":  "Our expert pharmacists are available 24/7 to help you find the right medications at the best prices.",
+                       "primary_button":  {
+                                              "text":  "Request Consultation",
+                                              "path":  "/consultation"
+                                          },
+                       "secondary_button":  {
+                                                "text":  "Contact Us",
+                                                "path":  "/contact"
+                                            }
+                   },
+    "top_bar_text":  "45+ Years of Trusted Service | 30+ Countries | 100% Authentic Medications",
+    "top_bar_phone":  "+1 (234) 567-890",
+    "compliance_notice":  "MediSeller is a licensed pharmaceutical distributor. All medications require a valid prescription. We comply with international pharmaceutical regulations and Indian pharmacy laws. Products are sourced from licensed manufacturers and undergo quality verification. Please consult your healthcare provider before starting any medication.",
+    "favicon_url":  "https://mediseller.com/favicon.ico",
+    "updated_at":  "2026-03-21T06:37:34.978407+00:00"
+}
