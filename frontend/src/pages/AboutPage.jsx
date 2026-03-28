@@ -128,7 +128,7 @@ export default function AboutPage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {(aboutData.advantage_section?.items || []).map((card, idx) => (
+            {(aboutData.advantage_section?.items || aboutData.advantage_section?.cards || []).map((card, idx) => (
               <Card key={idx} className="border-slate-200">
                 <CardContent className="p-6">
                   <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
