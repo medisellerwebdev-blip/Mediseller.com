@@ -1068,6 +1068,7 @@ async def get_status_checks():
     return status_checks
 
 @api_router.get("/health")
+@api_router.head("/health")
 async def health_check():
     return {"status": "healthy", "timestamp": datetime.now(timezone.utc).isoformat()}
 
