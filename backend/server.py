@@ -1338,15 +1338,29 @@ async def get_product(product_id: str):
         raise HTTPException(status_code=404, detail="Product not found")
     return product
 
+@api_router.post("/seed")
+async def seed_data():
+    """Manually trigger database seeding"""
+    return await seed_database()
+
 @api_router.get("/categories")
 async def get_categories():
     """Get all product categories with counts"""
-    pipeline = [
-        {"$group": {"_id": "$category", "count": {"$sum": 1}}},
-        {"$sort": {"_id": 1}}
-    ]
-    categories = await db.products.aggregate(pipeline).to_list(100)
-    return [{"name": cat["_id"], "count": cat["count"]} for cat in categories]
+    try:
+        # If empty, force a seed check here too
+        count = await db.products.count_documents({})
+        if count == 0:
+            await seed_database()
+            
+        pipeline = [
+            {"$group": {"_id": "$category", "count": {"$sum": 1}}},
+            {"$sort": {"_id": 1}}
+        ]
+        categories = await db.products.aggregate(pipeline).to_list(100)
+        return [{"name": cat["_id"], "count": cat["count"]} for cat in categories]
+    except Exception as e:
+        logger.error(f"Error in get_categories: {e}")
+        return []
 
 @api_router.get("/featured-products", response_model=List[dict])
 async def get_featured_products(limit: int = 8):
