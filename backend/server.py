@@ -11,6 +11,7 @@ import uuid
 import re
 from datetime import datetime, timezone, timedelta
 import base64
+import traceback
 import certifi
 import ssl
 import shutil
@@ -159,18 +160,23 @@ if USE_MOCK_DB:
     db = MockDB()
 else:
     try:
-        mongo_url = os.environ.get('MONGO_URL', '')
+        mongo_url = os.environ.get('MONGO_URL') or os.environ.get('MONGODB_URI')
+        if not mongo_url:
+            raise ValueError("MONGODB_URI or MONGO_URL not found in environment")
+            
         mongo_client = AsyncIOMotorClient(
             mongo_url, 
             tlsCAFile=ca, 
             tlsAllowInvalidCertificates=True,
             tlsAllowInvalidHostnames=True,
             ssl_cert_reqs=ssl.CERT_NONE,
-            serverSelectionTimeoutMS=2000
+            serverSelectionTimeoutMS=5000
         )
         db = mongo_client[os.environ.get('DB_NAME', 'mediseller_v2')]
+        logger.info("Connected to MongoDB Atlas")
     except Exception as e:
         logger.warning(f"Failed to connect to MongoDB, using MockDB: {e}")
+        db = MockDB()
 # Admin Credentials (Initial/Default)
 ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@mediseller.com')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'MediSeller#Admin@2026')
