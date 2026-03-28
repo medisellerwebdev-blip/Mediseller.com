@@ -33,11 +33,13 @@ export default function ProductsPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
-  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
   const [sortBy, setSortBy] = useState('discount');
   const [inStockOnly, setInStockOnly] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [siteConfig, setSiteConfig] = useState(null);
+
+  const selectedCategory = searchParams.get('category') || '';
+  const searchFromUrl = searchParams.get('search') || '';
 
   useEffect(() => {
     const fetchConfig = async () => {
@@ -62,12 +64,10 @@ export default function ProductsPage() {
     }))
   ];
 
+  // Sync search input when URL changes
   useEffect(() => {
-    const cat = searchParams.get('category') || '';
-    const search = searchParams.get('search') || '';
-    setSelectedCategory(cat);
-    setSearchQuery(search);
-  }, [searchParams]);
+    setSearchQuery(searchFromUrl);
+  }, [searchFromUrl]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -75,7 +75,7 @@ export default function ProductsPage() {
       try {
         const params = new URLSearchParams();
         if (selectedCategory) params.append('category', selectedCategory);
-        if (searchQuery) params.append('search', searchQuery);
+        if (searchFromUrl) params.append('search', searchFromUrl);
         if (inStockOnly) params.append('in_stock', 'true');
 
         const response = await fetch(`${API_URL}/api/products?${params.toString()}`);
@@ -94,7 +94,7 @@ export default function ProductsPage() {
     };
 
     fetchProducts();
-  }, [selectedCategory, searchQuery, inStockOnly, sortBy]);
+  }, [selectedCategory, searchFromUrl, inStockOnly, sortBy]);
 
   const sortProducts = (products, sort) => {
     switch (sort) {
@@ -123,7 +123,6 @@ export default function ProductsPage() {
   };
 
   const handleCategoryChange = (category) => {
-    setSelectedCategory(category);
     const params = new URLSearchParams(searchParams);
     if (category) {
       params.set('category', category);
@@ -134,8 +133,6 @@ export default function ProductsPage() {
   };
 
   const clearFilters = () => {
-    setSelectedCategory('');
-    setSearchQuery('');
     setInStockOnly(false);
     setSortBy('discount');
     setSearchParams({});
