@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { ChevronRight, Building } from 'lucide-react';
 import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
@@ -113,7 +114,7 @@ export default function AboutPage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {(aboutData.advantage_section || []).map((card, idx) => (
+            {(aboutData.advantage_section?.items || []).map((card, idx) => (
               <Card key={idx} className="border-slate-200">
                 <CardContent className="p-6">
                   <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
