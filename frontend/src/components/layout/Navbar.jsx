@@ -149,7 +149,7 @@ export const Navbar = () => {
                           <DropdownMenuItem key={i} asChild>
                             <Link
                               to={cat.path || `/products?category=${encodeURIComponent(cat.title)}`}
-                              className="flex items-center gap-2"
+                              className="flex items-center gap-2 cursor-pointer w-full"
                               data-testid={`category-${cat.title}`}
                             >
                               <Activity className="w-4 h-4 text-primary" />
@@ -278,7 +278,7 @@ export const Navbar = () => {
                             key={i}
                             to={cat.path || `/products?category=${encodeURIComponent(cat.title)}`}
                             onClick={() => setMobileMenuOpen(false)}
-                            className="flex items-center gap-3 py-2 text-slate-700 hover:text-primary transition-colors"
+                            className="flex items-center gap-3 py-2 text-slate-700 hover:text-primary transition-colors cursor-pointer w-full select-auto"
                           >
                             <Activity className="w-4 h-4 text-primary" />
                             {cat.title}
