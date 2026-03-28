@@ -63,6 +63,13 @@ export default function ProductsPage() {
   ];
 
   useEffect(() => {
+    const cat = searchParams.get('category') || '';
+    const search = searchParams.get('search') || '';
+    setSelectedCategory(cat);
+    setSearchQuery(search);
+  }, [searchParams]);
+
+  useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
