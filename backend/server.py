@@ -1310,21 +1310,25 @@ async def get_products(
     skip: int = 0
 ):
     """Get products with optional filters"""
-    query = {}
-    
-    if category:
-        query["category"] = category
-    if in_stock is not None:
-        query["in_stock"] = in_stock
-    if search:
-        query["$or"] = [
-            {"name": {"$regex": search, "$options": "i"}},
-            {"generic_name": {"$regex": search, "$options": "i"}},
-            {"brand": {"$regex": search, "$options": "i"}}
-        ]
-    
-    products = await db.products.find(query, {"_id": 0}).skip(skip).limit(limit).to_list(limit)
-    return products
+    try:
+        query = {}
+        if category:
+            query["category"] = category
+        if in_stock is not None:
+            query["in_stock"] = in_stock
+        if search:
+            query["$or"] = [
+                {"name": {"$regex": search, "$options": "i"}},
+                {"generic_name": {"$regex": search, "$options": "i"}},
+                {"brand": {"$regex": search, "$options": "i"}}
+            ]
+        
+        cursor = db.products.find(query, {"_id": 0})
+        products = await cursor.skip(skip).limit(limit).to_list(limit)
+        return products
+    except Exception as e:
+        logger.error(f"Error in get_products: {e}")
+        return [] # Return empty list instead of 500
 
 @api_router.get("/products/{product_id}")
 async def get_product(product_id: str):
@@ -2798,14 +2802,12 @@ app.include_router(api_router)
 async def startup_db_seed():
     """Auto-seed site config on startup if empty"""
     try:
-        count = await db.site_config.count_documents({"active": True})
-        if count == 0:
-            logger.info("Site configuration not found. Seeding default data...")
-            # We call the logic directly or trigger the endpoint logic
-            # For simplicity, we can do a subset of seed_database here or just call it
-            # But since it's an async function, we can just await it
+        config_count = await db.site_config.count_documents({"active": True})
+        prod_count = await db.products.count_documents({})
+        if config_count == 0 or prod_count == 0:
+            logger.info("Site data or config missing. Auto-seeding...")
             await seed_database()
-            logger.info("Database seeded successfully on startup")
+            logger.info("Database auto-seeded successfully")
     except Exception as e:
         logger.error(f"Auto-seeding failed on startup: {e}")
 
