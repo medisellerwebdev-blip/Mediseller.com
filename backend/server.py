@@ -183,7 +183,12 @@ api_router = APIRouter(prefix="/api")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=os.environ.get('ALLOWED_ORIGINS', '*').split(','),
+    allow_origins=[
+        "https://mediseller-2-website.web.app",
+        "https://mediseller-com.onrender.com",
+        "http://localhost:3000",
+        "http://localhost:8001"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
