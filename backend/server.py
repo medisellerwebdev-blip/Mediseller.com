@@ -186,6 +186,8 @@ app.add_middleware(
     allow_origins=[
         "https://mediseller-2-website.web.app",
         "https://mediseller-com.onrender.com",
+        "https://mediseller.com",
+        "https://www.mediseller.com",
         "http://localhost:3000",
         "http://localhost:8001"
     ],
