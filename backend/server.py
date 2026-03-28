@@ -1338,6 +1338,7 @@ async def get_product(product_id: str):
         raise HTTPException(status_code=404, detail="Product not found")
     return product
 
+@api_router.get("/seed")
 @api_router.post("/seed")
 async def seed_data():
     """Manually trigger database seeding"""
@@ -1347,9 +1348,11 @@ async def seed_data():
 async def get_categories():
     """Get all product categories with counts"""
     try:
-        # If empty, force a seed check here too
-        count = await db.products.count_documents({})
-        if count == 0:
+        # Aggressive auto-seeding
+        config_count = await db.site_config.count_documents({"active": True})
+        prod_count = await db.products.count_documents({})
+        if config_count == 0 or prod_count == 0:
+            logger.info("Data missing during categories fetch. Seeding...")
             await seed_database()
             
         pipeline = [
