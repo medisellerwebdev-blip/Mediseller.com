@@ -8,6 +8,7 @@ from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from typing import List, Optional
 import uuid
+import re
 from datetime import datetime, timezone, timedelta
 import base64
 import certifi
@@ -1338,12 +1339,6 @@ async def get_product(product_id: str):
         raise HTTPException(status_code=404, detail="Product not found")
     return product
 
-@api_router.get("/seed")
-@api_router.post("/seed")
-async def seed_data():
-    """Manually trigger database seeding"""
-    return await seed_database()
-
 @api_router.get("/categories")
 async def get_categories():
     """Get all product categories with counts"""
@@ -1940,6 +1935,7 @@ async def request_consultation(consultation: ConsultationCreate):
 # SEED DATA
 # =========================
 
+@api_router.get("/seed")
 @api_router.post("/seed")
 async def seed_database():
     """Seed database with initial data"""
@@ -1948,6 +1944,8 @@ async def seed_database():
     existing_products = await db.products.count_documents({})
     if existing_products > 0:
         return {"message": "Database already seeded", "products": existing_products}
+    
+    logger.info("Starting database seed process...")
     
     # Categories and their products
     products_data = []
