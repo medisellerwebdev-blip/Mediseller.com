@@ -57,6 +57,8 @@ export default function AboutEditor() {
       });
       if (res.ok) {
         toast.success('About page configuration saved');
+        // Re-fetch to ensure the state is perfectly in sync with the server
+        fetchConfig();
       } else {
         const error = await res.json();
         toast.error(error.detail || 'Failed to save');

@@ -116,7 +116,13 @@ class MockCollection:
         return docs
 
     async def update_one(self, query, update, upsert=False):
-        return type('obj', (), {'modified_count': 1})
+        import re
+        filtered = self._filter_data(query)
+        if filtered and "$set" in update:
+            for item in filtered:
+                item.update(update["$set"])
+            return type('obj', (), {'modified_count': len(filtered)})
+        return type('obj', (), {'modified_count': 0})
 
     async def delete_many(self, query):
         count = len(self._data)
@@ -153,10 +159,10 @@ ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 # MongoDB connection
-USE_MOCK_DB = os.environ.get('USE_MOCK_DB', 'True').lower() == 'true'
+USE_MOCK_DB = os.environ.get('USE_MOCK_DB', 'False').lower() == 'true'
 
 if USE_MOCK_DB:
-    logger.info("Using MockDB for local development")
+    logger.info("ENVIRONMENT: Using MockDB (In-Memory)")
     db = MockDB()
 else:
     try:
@@ -175,7 +181,9 @@ else:
         db = mongo_client[os.environ.get('DB_NAME', 'mediseller_v2')]
         logger.info("Connected to MongoDB Atlas")
     except Exception as e:
-        logger.warning(f"Failed to connect to MongoDB, using MockDB: {e}")
+        logger.error("!!! CRITICAL: Failed to connect to MongoDB Atlas !!!")
+        logger.error(f"Error Details: {str(e)}")
+        logger.error("Falling back to ephemeral MockDB. DATA WILL NOT PERSIST ON RESTART.")
         db = MockDB()
 # Admin Credentials (Initial/Default)
 ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@mediseller.com')
@@ -211,6 +219,17 @@ if not os.path.exists(UPLOAD_DIR):
 
 # Mount static files for uploads
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
+
+@app.get("/api/health-status")
+async def health_status():
+    """Diagnostic endpoint to check DB and connection status"""
+    status = "MockDB (In-Memory)" if USE_MOCK_DB else "Production Atlas (Persisted)"
+    return {
+        "status": status,
+        "is_mock": USE_MOCK_DB,
+        "database_name": os.environ.get('DB_NAME', 'mediseller_v2'),
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
 
 # =========================
 # MODELS
