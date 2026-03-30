@@ -198,11 +198,12 @@ ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@mediseller.com')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'MediSeller#Admin@2026')
 ADMIN_SESSION_TOKEN = f"admin_{uuid.uuid4().hex[:16]}"
 
-# Create the main app
-app = FastAPI(title="MediSeller API", description="Online Pharmacy API")
-
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
+
+@app.get("/")
+async def root():
+    return {"message": "MediSeller API - Online Pharmacy Platform", "status": "online"}
 
 app.add_middleware(
     CORSMiddleware,
