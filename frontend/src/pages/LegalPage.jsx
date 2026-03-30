@@ -4,46 +4,30 @@ import { Loader2, ChevronRight, Scale, Shield, Receipt } from 'lucide-react';
 import { Badge } from '../components/ui/badge';
 import { Card, CardContent } from '../components/ui/card';
 import DOMPurify from 'dompurify';
+import { useConfig } from '../context/ConfigContext';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 export default function LegalPage() {
   const { policyType } = useParams(); // 'privacy', 'terms', 'refund'
-  const [loading, setLoading] = useState(true);
-  const [policyData, setPolicyData] = useState(null);
+  const { config, loading } = useConfig();
 
-  useEffect(() => {
-    const fetchPolicy = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(`${API_URL}/api/site-config`);
-        if (res.ok) {
-          const config = await res.json();
-          const pTypeMap = {
-            'privacy': 'privacy_policy',
-            'terms': 'terms_of_service',
-            'refund': 'refund_policy'
-          };
-          const key = pTypeMap[policyType];
-          if (config.legal_pages && config.legal_pages[key]) {
-            setPolicyData(config.legal_pages[key]);
-          } else {
-            // Fallbacks in case config doesn't exist yet
-            setPolicyData({
-              title: policyType === 'privacy' ? 'Privacy Policy' : policyType === 'terms' ? 'Terms of Service' : 'Refund Policy',
-              content: 'Content has not been configured yet.',
-              last_updated: ''
-            });
-          }
-        }
-      } catch (error) {
-        console.error('Failed to fetch legal policy:', error);
-      } finally {
-        setLoading(false);
-      }
+  const getPolicyData = () => {
+    if (!config) return null;
+    const pTypeMap = {
+      'privacy': 'privacy_policy',
+      'terms': 'terms_of_service',
+      'refund': 'refund_policy'
     };
-    fetchPolicy();
-  }, [policyType]);
+    const key = pTypeMap[policyType];
+    return config.legal_pages?.[key] || {
+      title: policyType === 'privacy' ? 'Privacy Policy' : policyType === 'terms' ? 'Terms of Service' : 'Refund Policy',
+      content: '<p>Content has not been configured yet.</p>',
+      last_updated: ''
+    };
+  };
+
+  const policyData = getPolicyData();
 
   if (loading) {
     return (

@@ -176,10 +176,14 @@ else:
             tlsAllowInvalidCertificates=True,
             tlsAllowInvalidHostnames=True,
             ssl_cert_reqs=ssl.CERT_NONE,
-            serverSelectionTimeoutMS=5000
+            serverSelectionTimeoutMS=5000,
+            connectTimeoutMS=10000,
+            maxPoolSize=50,
+            minPoolSize=10,
+            retryWrites=True
         )
         db = mongo_client[os.environ.get('DB_NAME', 'mediseller_v2')]
-        logger.info("Connected to MongoDB Atlas")
+        logger.info("Connected to MongoDB Atlas with optimized pooling")
     except Exception as e:
         logger.error("!!! CRITICAL: Failed to connect to MongoDB Atlas !!!")
         logger.error(f"Error Details: {str(e)}")
@@ -1048,9 +1052,12 @@ async def update_site_config(config: dict, request: Request):
         del config["_id"]
 
     try:
-        # Simple implementation: always replace the active one
-        await db.site_config.delete_many({"active": True})
-        await db.site_config.insert_one(config)
+        # Optimized implementation: replace or insert the active one
+        await db.site_config.update_one(
+            {"active": True},
+            {"$set": config},
+            upsert=True
+        )
         return {"message": "Config updated successfully"}
     except Exception as e:
         logger.error(f"Failed to update site config: {e}")
@@ -1368,12 +1375,8 @@ async def get_product(product_id: str):
 async def get_categories():
     """Get all product categories with counts"""
     try:
-        # Aggressive auto-seeding
-        config_count = await db.site_config.count_documents({"active": True})
-        prod_count = await db.products.count_documents({})
-        if config_count == 0 or prod_count == 0:
-            logger.info("Data missing during categories fetch. Seeding...")
-            await seed_database()
+        # Redundant auto-seeding removed for performance. 
+        # Seeding is now handled only on server startup or manual reset.
             
         pipeline = [
             {"$group": {"_id": "$category", "count": {"$sum": 1}}},
@@ -2842,6 +2845,16 @@ app.include_router(api_router)
 async def startup_db_seed():
     """Auto-seed site config on startup if empty"""
     try:
+        # Ensure indexes for performance
+        if not USE_MOCK_DB:
+            await db.products.create_index("product_id", unique=True)
+            await db.products.create_index("category")
+            await db.users.create_index("user_id", unique=True)
+            await db.users.create_index("email", unique=True)
+            await db.orders.create_index("order_id", unique=True)
+            await db.site_config.create_index("active")
+            logger.info("Database indexes verified/created")
+
         config_count = await db.site_config.count_documents({"active": True})
         prod_count = await db.products.count_documents({})
         if config_count == 0 or prod_count == 0:

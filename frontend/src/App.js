@@ -5,6 +5,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import { CurrencyProvider } from "./context/CurrencyContext";
 import { Toaster } from "./components/ui/sonner";
+import { ConfigProvider, useConfig } from "./context/ConfigContext";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import WhatsAppChatButton from "./components/whatsapp/WhatsAppButton";
@@ -28,33 +29,20 @@ import AdminDashboardPage from "./pages/AdminDashboardPage";
 // Router component to handle auth callback detection
 function AppRouter() {
   const location = useLocation();
+  const { config } = useConfig();
 
   // Handle Favicon from site config
   React.useEffect(() => {
-    const backendUrl = process.env.REACT_APP_BACKEND_URL;
-    if (!backendUrl) return;
-
-    const updateFavicon = async () => {
-      try {
-        const res = await fetch(`${backendUrl}/api/site-config`);
-        if (res.ok) {
-          const config = await res.json();
-          if (config && config.favicon_url) {
-            let link = document.querySelector("link[rel~='icon']");
-            if (!link) {
-              link = document.createElement('link');
-              link.rel = 'icon';
-              document.getElementsByTagName('head')[0].appendChild(link);
-            }
-            link.href = config.favicon_url;
-          }
-        }
-      } catch (err) {
-        console.warn('Favicon update failed:', err);
+    if (config && config.favicon_url) {
+      let link = document.querySelector("link[rel~='icon']");
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.getElementsByTagName('head')[0].appendChild(link);
       }
-    };
-    updateFavicon();
-  }, []);
+      link.href = config.favicon_url;
+    }
+  }, [config]);
   
   // Check URL fragment (not query params) for session_id synchronously
   // This prevents race conditions by detecting auth callback FIRST
@@ -99,14 +87,16 @@ function AppRouter() {
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <CurrencyProvider>
-          <CartProvider>
-            <AppRouter />
-            <Toaster position="top-right" richColors />
-          </CartProvider>
-        </CurrencyProvider>
-      </AuthProvider>
+      <ConfigProvider>
+        <AuthProvider>
+          <CurrencyProvider>
+            <CartProvider>
+              <AppRouter />
+              <Toaster position="top-right" richColors />
+            </CartProvider>
+          </CurrencyProvider>
+        </AuthProvider>
+      </ConfigProvider>
     </BrowserRouter>
   );
 }

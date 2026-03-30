@@ -6,32 +6,15 @@ import DOMPurify from 'dompurify';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import DynamicIcon from '../components/icons/DynamicIcon';
+import { useConfig } from '../context/ConfigContext';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 export default function AboutPage() {
-  const [siteConfig, setSiteConfig] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { config: siteConfig, loading } = useConfig();
 
   // Debugging: Ensure it doesn't return null
   console.log("Rendering AboutPage, siteConfig:", siteConfig);
-
-  useEffect(() => {
-    const fetchConfig = async () => {
-      try {
-        const res = await fetch(`${API_URL}/api/site-config`);
-        if (res.ok) {
-          const data = await res.json();
-          setSiteConfig(data);
-        }
-      } catch (error) {
-        console.error('Error fetching site config:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchConfig();
-  }, []);
 
   const aboutData = siteConfig?.about_page || {};
   const stats = aboutData.stats || [];

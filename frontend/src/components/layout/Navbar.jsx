@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useCurrency } from '../../context/CurrencyContext';
+import { useConfig } from '../../context/ConfigContext';
 import { Button } from '../ui/button';
 import {
   DropdownMenu,
@@ -35,23 +36,8 @@ export const Navbar = () => {
   const { currency, toggleCurrency } = useCurrency();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [siteConfig, setSiteConfig] = useState(null);
+  const { config: siteConfig } = useConfig();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchConfig = async () => {
-      try {
-        const res = await fetch(`${API_URL}/api/site-config`);
-        if (res.ok) {
-          const data = await res.json();
-          setSiteConfig(data);
-        }
-      } catch (error) {
-        console.error('Navbar config fetch error:', error);
-      }
-    };
-    fetchConfig();
-  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();

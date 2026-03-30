@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useConfig } from '../../context/ConfigContext';
 import { 
   Save, 
   Plus, 
@@ -99,6 +100,7 @@ export default function HomeEditor() {
   const [config, setConfig] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const { setConfig: setGlobalConfig } = useConfig();
 
   useEffect(() => {
     fetchConfig();
@@ -176,6 +178,7 @@ export default function HomeEditor() {
       });
       if (res.ok) {
         toast.success('Configuration saved successfully');
+        setGlobalConfig(config); // Optimistic UI: update global site config immediately
       } else {
         const error = await res.json();
         toast.error(error.detail || 'Failed to save configuration');

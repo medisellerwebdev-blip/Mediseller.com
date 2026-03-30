@@ -42,59 +42,58 @@ import {
 } from 'lucide-react';
 import DynamicIcon from '../components/icons/DynamicIcon';
 import DOMPurify from 'dompurify';
+import { useConfig } from '../context/ConfigContext';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 export default function HomePage() {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [siteConfig, setSiteConfig] = useState(null);
+  const { config: siteConfig, loading: configLoading } = useConfig();
+  const [loadingProducts, setLoadingProducts] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchProducts = async () => {
       if (!API_URL) {
-        console.warn('Backend URL not defined');
-        setLoading(false);
+        setLoadingProducts(false);
         return;
       }
       try {
-        // Seed database first (ignore failure if already seeded)
-        await fetch(`${API_URL}/api/seed`, { method: 'POST' }).catch(() => {});
-
-        // Fetch site config (includes testimonials, how_it_works, faq, etc.)
-        const configRes = await fetch(`${API_URL}/api/site-config`);
-        if (configRes.ok) {
-          const config = await configRes.json();
-          setSiteConfig(config);
-        }
-
-        // Fetch featured products
         const productsRes = await fetch(`${API_URL}/api/featured-products?limit=8`);
         if (productsRes.ok) {
           const products = await productsRes.json();
           setFeaturedProducts(products);
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching featured products:', error);
       } finally {
-        setLoading(false);
+        setLoadingProducts(false);
       }
     };
-
-    fetchData();
+    fetchProducts();
   }, []);
 
   const testimonials = siteConfig?.testimonials?.items || [];
 
   useEffect(() => {
-    if (testimonials.length > 1) {
+    if (testimonials && testimonials.length > 1) {
       const interval = setInterval(() => {
         setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
       }, 5000);
       return () => clearInterval(interval);
     }
-  }, [testimonials.length]);
+  }, [testimonials?.length]);
+
+  if (configLoading || loadingProducts) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-slate-100 border-t-primary rounded-full animate-spin"></div>
+          <p className="text-slate-500 font-medium animate-pulse tracking-tight">Loading MediSeller...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen" data-testid="home-page">

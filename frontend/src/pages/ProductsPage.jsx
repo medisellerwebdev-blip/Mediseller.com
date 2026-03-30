@@ -3,6 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
+import { useConfig } from '../context/ConfigContext';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Checkbox } from '../components/ui/checkbox';
@@ -36,25 +37,7 @@ export default function ProductsPage() {
   const [sortBy, setSortBy] = useState('discount');
   const [inStockOnly, setInStockOnly] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [siteConfig, setSiteConfig] = useState(null);
-
-  const selectedCategory = searchParams.get('category') || '';
-  const searchFromUrl = searchParams.get('search') || '';
-
-  useEffect(() => {
-    const fetchConfig = async () => {
-      try {
-        const res = await fetch(`${API_URL}/api/site-config`);
-        if (res.ok) {
-          const data = await res.json();
-          setSiteConfig(data);
-        }
-      } catch (error) {
-        console.error('ProductsPage config fetch error:', error);
-      }
-    };
-    fetchConfig();
-  }, []);
+  const { config: siteConfig } = useConfig();
 
   const dynamicCategories = [
     { name: 'All Categories', slug: '' },
