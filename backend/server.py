@@ -198,6 +198,9 @@ ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@mediseller.com')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'MediSeller#Admin@2026')
 ADMIN_SESSION_TOKEN = f"admin_{uuid.uuid4().hex[:16]}"
 
+# Create the main app
+app = FastAPI(title="MediSeller API", description="Online Pharmacy API")
+
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
@@ -2505,10 +2508,10 @@ async def seed_database():
                 "title": "Simple 4-Step Process",
                 "subtitle": "Getting your medications delivered is easy. Follow these simple steps to start saving.",
                 "steps": [
-                    {"step": 1, "title": "Browse Products", "description": "Find the medications you need from our extensive catalog."},
-                    {"step": 2, "title": "Upload Prescription", "description": "Our pharmacists verify your prescription for safety."},
-                    {"step": 3, "title": "Secure Payment", "description": "Pay securely using various international methods."},
-                    {"step": 4, "title": "Global Delivery", "description": "Receive your medication at your doorstep in 7-14 days."}
+                    {"step": "1", "title": "Browse Products", "description": "Find the medications you need from our extensive catalog."},
+                    {"step": "2", "title": "Upload Prescription", "description": "Our pharmacists verify your prescription for safety."},
+                    {"step": "3", "title": "Secure Payment", "description": "Pay securely using various international methods."},
+                    {"step": "4", "title": "Global Delivery", "description": "Receive your medication at your doorstep in 7-14 days."}
                 ]
             },
             "testimonials": {
