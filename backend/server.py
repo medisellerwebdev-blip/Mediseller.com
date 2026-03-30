@@ -204,10 +204,13 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://mediseller-2-website.web.app",
+        "https://mediseller-2-website.firebaseapp.com",
         "https://mediseller-com.onrender.com",
+        "https://mediseller.onrender.com",
         "https://mediseller.com",
         "https://www.mediseller.com",
         "http://localhost:3000",
+        "http://localhost:3001",
         "http://localhost:8001"
     ],
     allow_credentials=True,
