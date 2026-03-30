@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
+import RichTextEditor from './RichTextEditor';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -102,12 +103,12 @@ export default function AboutEditor() {
               />
             </div>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Subtitle</label>
-            <textarea 
-              className="flex min-h-[80px] w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm"
+            <RichTextEditor 
               value={about.hero_subtitle || ''} 
-              onChange={(e) => setConfig({...config, about_page: {...about, hero_subtitle: e.target.value}})}
+              onChange={(val) => setConfig({...config, about_page: {...about, hero_subtitle: val}})}
+              placeholder="Hero section subtitle..."
             />
           </div>
         </CardContent>
@@ -125,9 +126,13 @@ export default function AboutEditor() {
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-500 text-primary">Mission Title</label>
                 <Input value={about.mission_title || ''} onChange={(e) => setConfig({...config, about_page: {...about, mission_title: e.target.value}})} />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Mission Text</label>
-                <textarea className="flex min-h-[100px] w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm" value={about.mission_text || ''} onChange={(e) => setConfig({...config, about_page: {...about, mission_text: e.target.value}})} />
+                <RichTextEditor 
+                  value={about.mission_text || ''} 
+                  onChange={(val) => setConfig({...config, about_page: {...about, mission_text: val}})}
+                  placeholder="Describe your company's mission..."
+                />
               </div>
             </div>
             <div className="space-y-4">
@@ -135,9 +140,13 @@ export default function AboutEditor() {
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-500 text-primary">Vision Title</label>
                 <Input value={about.vision_title || ''} onChange={(e) => setConfig({...config, about_page: {...about, vision_title: e.target.value}})} />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Vision Text</label>
-                <textarea className="flex min-h-[100px] w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm" value={about.vision_text || ''} onChange={(e) => setConfig({...config, about_page: {...about, vision_text: e.target.value}})} />
+                <RichTextEditor 
+                  value={about.vision_text || ''} 
+                  onChange={(val) => setConfig({...config, about_page: {...about, vision_text: val}})}
+                  placeholder="Describe your company's vision..."
+                />
               </div>
             </div>
           </div>
@@ -216,13 +225,17 @@ export default function AboutEditor() {
                       setConfig({...config, about_page: {...about, advantage_section: newItems}});
                     }} />
                   </div>
-                  <div className="space-y-1 md:col-span-3">
+                  <div className="space-y-3 md:col-span-3">
                     <label className="text-[10px] font-bold text-slate-400 uppercase">Description</label>
-                    <Input value={card.description} className="h-9 bg-white" onChange={(e) => {
-                      const newItems = [...about.advantage_section];
-                      newItems[idx].description = e.target.value;
-                      setConfig({...config, about_page: {...about, advantage_section: newItems}});
-                    }} />
+                    <RichTextEditor 
+                      value={card.description} 
+                      onChange={(val) => {
+                        const newItems = [...about.advantage_section];
+                        newItems[idx].description = val;
+                        setConfig({...config, about_page: {...about, advantage_section: newItems}});
+                      }}
+                      placeholder="Card description..."
+                    />
                   </div>
                 </div>
                 <Button variant="ghost" size="icon" className="text-red-400" onClick={() => {

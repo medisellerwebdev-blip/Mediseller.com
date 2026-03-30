@@ -41,6 +41,7 @@ import {
   Settings
 } from 'lucide-react';
 import DynamicIcon from '../components/icons/DynamicIcon';
+import DOMPurify from 'dompurify';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -122,9 +123,10 @@ export default function HomePage() {
                   siteConfig?.hero?.title || 'Global Access to Authentic Medicine'
                 )}
               </h1>
-              <p className="text-lg text-slate-600 max-w-xl">
-                {siteConfig?.hero?.subtitle || 'Secure 100% original generic medications from India. Save over 60% with insured delivery to 30+ countries. Trusted by patients worldwide for nearly half a century.'}
-              </p>
+              <div 
+                className="text-lg text-slate-600 max-w-xl prose-content"
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(siteConfig?.hero?.subtitle || 'Secure 100% original generic medications from India. Save over 60% with insured delivery to 30+ countries. Trusted by patients worldwide for nearly half a century.') }}
+              />
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to={siteConfig?.hero?.primary_cta?.path || "/products"}>
                   <Button size="lg" className="rounded-full h-12 px-8" data-testid="view-products-btn">
@@ -499,9 +501,10 @@ export default function HomePage() {
             <h2 className="font-heading text-3xl md:text-4xl font-bold text-white mb-4">
               {siteConfig?.bottom_cta?.title || "Need Help Finding Your Medication?"}
             </h2>
-            <p className="text-slate-400 text-lg mb-8">
-              {siteConfig?.bottom_cta?.text || "Our expert pharmacists are available 24/7 to help you find the right medications at the best prices. Connect with us today."}
-            </p>
+            <div 
+              className="text-slate-400 text-lg mb-8 prose-content"
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(siteConfig?.bottom_cta?.text || "Our expert pharmacists are available 24/7 to help you find the right medications at the best prices. Connect with us today.") }}
+            />
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               {siteConfig?.bottom_cta?.primary_button?.text && (
                 <Link to={siteConfig.bottom_cta.primary_button.path}>

@@ -3,8 +3,8 @@ import { Save, Loader2, FileText } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { Textarea } from "../ui/textarea";
 import { toast } from "sonner";
+import RichTextEditor from './RichTextEditor';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -136,11 +136,9 @@ export default function LegalEditor() {
                     <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Markdown Content</label>
                     <span className="text-xs text-slate-400">Supports Markdown formatting</span>
                   </div>
-                  <Textarea 
+                  <RichTextEditor 
                     value={pageData.content} 
-                    onChange={(e) => handlePageChange(key, 'content', e.target.value)}
-                    rows={15}
-                    className="font-mono text-sm leading-relaxed"
+                    onChange={(val) => handlePageChange(key, 'content', val)}
                     placeholder={`# ${label}\n\nEnter the full policy text here...`}
                   />
                 </div>

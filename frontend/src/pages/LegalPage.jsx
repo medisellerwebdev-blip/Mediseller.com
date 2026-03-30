@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Loader2, ChevronRight, Scale, Shield, Receipt } from 'lucide-react';
 import { Badge } from '../components/ui/badge';
 import { Card, CardContent } from '../components/ui/card';
+import DOMPurify from 'dompurify';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -117,23 +118,10 @@ export default function LegalPage() {
               prose-ul:text-slate-600 prose-li:my-1
               prose-hr:border-slate-200">
               {policyData?.content ? (
-                <div dangerouslySetInnerHTML={{ 
-                  __html: policyData.content
-                    // Global replacements
-                    .replace(/^#\s+(.*$)/gim, '<h1 class="text-3xl font-bold mb-6 mt-2 border-b pb-2 text-slate-900">$1</h1>')
-                    .replace(/^##\s+(.*$)/gim, '<h2 class="text-2xl font-bold mb-4 mt-8 text-slate-800 uppercase tracking-wide">$1</h2>')
-                    .replace(/^###\s+(.*$)/gim, '<h3 class="text-xl font-bold mb-3 mt-6 text-slate-700">$1</h3>')
-                    .replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-900 font-bold">$1</strong>')
-                    .replace(/^\s*[-*]\s+(.*$)/gim, '<li class="ml-6 mb-2 relative before:content-[\'•\'] before:absolute before:-left-4 before:text-primary">$1</li>')
-                    // Paragraphs
-                    .split(/\n\n+/)
-                    .map(p => {
-                      const trimmed = p.trim();
-                      if (trimmed.startsWith('<h') || trimmed.startsWith('<li')) return trimmed;
-                      return `<p class="mb-4 text-slate-600 leading-relaxed">${p.replace(/\n/g, '<br />')}</p>`;
-                    })
-                    .join('')
-                }} />
+                <div 
+                  className="prose-content"
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(policyData.content) }} 
+                />
               ) : (
                 <p>No content has been defined yet.</p>
               )}

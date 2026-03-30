@@ -13,6 +13,7 @@ import {
   Package,
   Image as ImageIcon
 } from 'lucide-react';
+import RichTextEditor from './RichTextEditor';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -355,15 +356,11 @@ export default function ProductEditor({ product, onSave, onClose }) {
             </label>
           </div>
           {/* Description */}
-          <div className="space-y-2">
+          <div className="space-y-4">
             <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Product Description</label>
-            <textarea 
-              name="description" 
+            <RichTextEditor 
               value={formData.description} 
-              onChange={handleInputChange} 
-              rows={4}
-              required
-              className="flex w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              onChange={(val) => setFormData(p => ({...p, description: val}))}
               placeholder="Describe the medication, its uses and indications..."
             />
           </div>
@@ -440,25 +437,19 @@ export default function ProductEditor({ product, onSave, onClose }) {
                 />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <label className="text-xs font-medium text-slate-500">Side Effects</label>
-                  <textarea 
-                    name="side_effects"
+                  <RichTextEditor 
                     value={formData.side_effects} 
-                    onChange={handleInputChange}
-                    rows={2}
-                    className="flex w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    onChange={(val) => setFormData(p => ({...p, side_effects: val}))}
                     placeholder="Common side effects..."
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <label className="text-xs font-medium text-slate-500">Storage Info</label>
-                  <textarea 
-                    name="storage_info"
+                  <RichTextEditor 
                     value={formData.storage_info} 
-                    onChange={handleInputChange}
-                    rows={2}
-                    className="flex w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    onChange={(val) => setFormData(p => ({...p, storage_info: val}))}
                     placeholder="Store at room temperature..."
                   />
                 </div>

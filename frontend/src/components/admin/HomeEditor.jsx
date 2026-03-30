@@ -23,6 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
+import RichTextEditor from './RichTextEditor';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -355,12 +356,12 @@ export default function HomeEditor() {
                   onChange={(e) => setConfig({...config, hero: {...config.hero, title: e.target.value}})}
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Hero Subtitle</label>
-                <textarea 
-                  className="flex min-h-[100px] w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                <RichTextEditor 
                   value={config.hero.subtitle} 
-                  onChange={(e) => setConfig({...config, hero: {...config.hero, subtitle: e.target.value}})}
+                  onChange={(val) => setConfig({...config, hero: {...config.hero, subtitle: val}})}
+                  placeholder="Main hero section subtitle..."
                 />
               </div>
               
@@ -1243,12 +1244,12 @@ export default function HomeEditor() {
               onChange={(e) => setConfig({...config, bottom_cta: {...config.bottom_cta, title: e.target.value}})}
             />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             <label className="text-xs font-bold uppercase tracking-wider text-slate-500">CTA Description</label>
-            <textarea 
-              className="flex min-h-[80px] w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm"
+            <RichTextEditor 
               value={config.bottom_cta?.text || ''} 
-              onChange={(e) => setConfig({...config, bottom_cta: {...config.bottom_cta, text: e.target.value}})}
+              onChange={(val) => setConfig({...config, bottom_cta: {...config.bottom_cta, text: val}})}
+              placeholder="Bottom call to action content..."
             />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

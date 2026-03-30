@@ -9,6 +9,7 @@ import { useCart } from '../context/CartContext';
 import { useCurrency } from '../context/CurrencyContext';
 import ProductCard from '../components/products/ProductCard';
 import { toast } from 'sonner';
+import DOMPurify from 'dompurify';
 import {
   ShoppingCart,
   ChevronRight,
@@ -340,7 +341,10 @@ export default function ProductDetailPage() {
               <Card>
                 <CardContent className="p-6">
                   <h3 className="font-heading font-semibold text-lg mb-4">Product Description</h3>
-                  <p className="text-slate-600 leading-relaxed whitespace-pre-wrap">{product.description}</p>
+                  <div 
+                    className="text-slate-600 leading-relaxed prose-content"
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product.description) }}
+                  />
                   <Separator className="my-6" />
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
@@ -387,9 +391,10 @@ export default function ProductDetailPage() {
                             <Package className="w-5 h-5 text-blue-600" />
                             Storage \u0026 Handling
                           </h3>
-                          <p className="text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100 whitespace-pre-wrap">
-                            {product.storage_info}
-                          </p>
+                          <div 
+                            className="text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100 prose-content"
+                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product.storage_info) }}
+                          />
                         </div>
                       )}
                     </div>
@@ -410,9 +415,10 @@ export default function ProductDetailPage() {
                       {product.side_effects && (
                         <div>
                           <h3 className="font-heading font-bold text-lg mb-4 text-slate-900">Possible Side Effects</h3>
-                          <p className="text-slate-600 leading-relaxed border-l-4 border-slate-100 pl-4 py-1 whitespace-pre-wrap">
-                            {product.side_effects}
-                          </p>
+                          <div 
+                            className="text-slate-600 leading-relaxed border-l-4 border-slate-100 pl-4 py-1 prose-content"
+                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product.side_effects) }}
+                          />
                         </div>
                       )}
                     </div>

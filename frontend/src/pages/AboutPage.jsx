@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, Building, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '../components/ui/card';
+import DOMPurify from 'dompurify';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import DynamicIcon from '../components/icons/DynamicIcon';
@@ -70,9 +71,10 @@ export default function AboutPage() {
             <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
               {aboutData.hero_title || 'Trusted Pharmaceutical Partner Since 1981'}
             </h1>
-            <p className="text-xl text-slate-300 leading-relaxed whitespace-pre-wrap">
-              {aboutData.hero_subtitle || 'MediSeller has been at the forefront of pharmaceutical distribution for over four decades.'}
-            </p>
+            <div 
+              className="text-xl text-slate-300 leading-relaxed prose-content"
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(aboutData.hero_subtitle || 'MediSeller has been at the forefront of pharmaceutical distribution for over four decades.') }}
+            />
           </div>
         </div>
       </section>
@@ -85,17 +87,19 @@ export default function AboutPage() {
               <h2 className="font-heading text-3xl font-bold mb-4">
                 {aboutData.mission_title || 'Our Mission'}
               </h2>
-              <p className="text-slate-600 text-lg leading-relaxed whitespace-pre-wrap">
-                {aboutData.mission_text || 'To make life-saving medications accessible and affordable to patients worldwide.'}
-              </p>
+              <div 
+                className="text-slate-600 text-lg leading-relaxed prose-content"
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(aboutData.mission_text || 'To make life-saving medications accessible and affordable to patients worldwide.') }}
+              />
             </div>
             <div>
               <h2 className="font-heading text-3xl font-bold mb-4">
                 {aboutData.vision_title || 'Our Vision'}
               </h2>
-              <p className="text-slate-600 text-lg leading-relaxed whitespace-pre-wrap">
-                {aboutData.vision_text || 'To become the most trusted global online pharmacy, known for authenticity, affordability, and excellent customer care.'}
-              </p>
+              <div 
+                className="text-slate-600 text-lg leading-relaxed prose-content"
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(aboutData.vision_text || 'To become the most trusted global online pharmacy, known for authenticity, affordability, and excellent customer care.') }}
+              />
             </div>
           </div>
         </div>
@@ -135,7 +139,10 @@ export default function AboutPage() {
                     <DynamicIcon name={card.icon_name} className="w-6 h-6 text-primary" />
                   </div>
                   <h3 className="font-heading font-semibold text-xl mb-2">{card.title}</h3>
-                  <p className="text-slate-600 whitespace-pre-wrap">{card.description}</p>
+                  <div 
+                    className="text-slate-600 prose-content"
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(card.description) }}
+                  />
                 </CardContent>
               </Card>
             ))}
