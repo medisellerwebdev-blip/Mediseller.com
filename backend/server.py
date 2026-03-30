@@ -129,6 +129,10 @@ class MockCollection:
         self._data = []
         return type('obj', (), {'deleted_count': count})
 
+    async def create_index(self, *args, **kwargs):
+        # Mock index creation as no-op
+        return None
+
     def aggregate(self, pipeline):
         # Basic mock for categories grouping
         if pipeline and any("$group" in step for step in pipeline):
@@ -2835,8 +2839,8 @@ async def upload_image(file: UploadFile = File(...)):
             shutil.copyfileobj(file.file, buffer)
             
         # Return the public URL
-        # For local dev, we assume it's running on port 8001
-        base_url = "http://localhost:8001"
+        # For production, we should ideally use the actual domain, but for now we fallback
+        base_url = os.environ.get("BASE_URL", "http://localhost:8001")
         return {"url": f"{base_url}/uploads/{unique_filename}"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
