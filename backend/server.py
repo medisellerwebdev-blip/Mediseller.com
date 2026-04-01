@@ -1485,6 +1485,54 @@ async def add_to_cart(item: AddToCartRequest, request: Request):
     
     return {"cart": cart_doc, "session_id": session_id or cart_doc.get("session_id")}
 
+@api_router.get("/cart")
+async def get_cart(user_id: Optional[str] = None, session_id: Optional[str] = None):
+    """Fetch the cart for a user or session"""
+    query = {}
+    if user_id: query["user_id"] = user_id
+    elif session_id: query["session_id"] = session_id
+    else: return {"items": [], "total": 0}
+    
+    cart = await db.carts.find_one(query)
+    if not cart: return {"items": [], "total": 0}
+    
+    if "_id" in cart: del cart["_id"]
+    return cart
+
+@api_router.put("/cart/update")
+async def update_cart_item(item: CartItem, user_id: Optional[str] = None, session_id: Optional[str] = None):
+    """Update item quantity in cart"""
+    query = {}
+    if user_id: query["user_id"] = user_id
+    elif session_id: query["session_id"] = session_id
+    else: raise HTTPException(status_code=400, detail="User or Session ID required")
+    
+    if item.quantity <= 0:
+        await db.carts.update_one(query, {"$pull": {"items": {"product_id": item.product_id}}, "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}})
+    else:
+        cart = await db.carts.find_one({**query, "items.product_id": item.product_id})
+        if cart:
+            await db.carts.update_one({**query, "items.product_id": item.product_id}, {"$set": {"items.$.quantity": item.quantity, "updated_at": datetime.now(timezone.utc).isoformat()}})
+        else:
+            await db.carts.update_one(query, {"$push": {"items": item.model_dump()}, "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}})
+    return {"success": True}
+
+@api_router.delete("/cart/clear")
+async def clear_cart(user_id: Optional[str] = None, session_id: Optional[str] = None):
+    """Clear all items from the cart"""
+    query = {}
+    if user_id: query["user_id"] = user_id
+    elif session_id: query["session_id"] = session_id
+    else: raise HTTPException(status_code=400, detail="User or Session ID required")
+    
+    await db.carts.update_one(query, {"$set": {"items": [], "updated_at": datetime.now(timezone.utc).isoformat()}})
+    return {"success": True}
+
+@api_router.get("/health-check")
+async def health_check():
+    """Simple health check for Render"""
+    return {"status": "healthy", "timestamp": datetime.now(timezone.utc).isoformat()}
+
 # =========================
 # ROUTES - Admin
 # =========================

@@ -21,15 +21,21 @@ export const CartProvider = ({ children }) => {
   const fetchCart = useCallback(async () => {
     try {
       const sessionId = getStoredSessionId();
+      if (!sessionId) return;
+      
       const response = await fetch(`${API_URL}/api/cart?session_id=${sessionId}`, {
         credentials: 'include',
       });
       if (response.ok) {
         const data = await response.json();
-        setCart(data);
+        setCart(data || { items: [], total: 0 });
+      } else {
+        // Fallback to empty cart on error
+        setCart({ items: [], total: 0 });
       }
     } catch (error) {
       console.error('Failed to fetch cart:', error);
+      setCart({ items: [], total: 0 });
     }
   }, []);
 
