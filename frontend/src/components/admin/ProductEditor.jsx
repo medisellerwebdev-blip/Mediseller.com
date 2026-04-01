@@ -164,8 +164,8 @@ export default function ProductEditor({ product, onSave, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl transition-all animate-in fade-in zoom-in duration-200">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto" style={{ pointerEvents: 'auto' }}>
+      <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl transition-all animate-in fade-in zoom-in duration-200 mt-10 my-auto">
         <div className="sticky top-0 bg-white border-b p-6 flex justify-between items-center z-10">
           <div>
             <h2 className="text-2xl font-bold font-heading text-slate-900">

@@ -73,7 +73,7 @@ export const CartProvider = ({ children }) => {
     try {
       const sessionId = getStoredSessionId();
       const response = await fetch(
-        `${API_URL}/api/cart/update?product_id=${productId}&quantity=${quantity}&session_id=${sessionId}`,
+        `${API_URL}/api/cart/update?product_id=${encodeURIComponent(productId)}&quantity=${quantity}&session_id=${encodeURIComponent(sessionId)}`,
         {
           method: 'PUT',
           credentials: 'include',

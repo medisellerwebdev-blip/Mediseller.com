@@ -97,7 +97,7 @@ export default function ContactPage() {
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <CheckCircle className="w-10 h-10 text-green-600" />
               </div>
-              <h1 className="font-heading text-2xl font-bold mb-2">Message Sent!</h1>
+              <h2 className="font-heading text-2xl font-bold mb-2">Message Sent!</h2>
               <p className="text-slate-600 mb-6">
                 Thank you for reaching out. Our team will get back to you within 24-48 hours.
               </p>
