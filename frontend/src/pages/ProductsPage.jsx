@@ -38,6 +38,9 @@ export default function ProductsPage() {
   const [inStockOnly, setInStockOnly] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const { config: siteConfig } = useConfig();
+  
+  const searchFromUrl = searchParams.get('search') || '';
+  const selectedCategory = searchParams.get('category') || '';
 
   const dynamicCategories = [
     { name: 'All Categories', slug: '' },

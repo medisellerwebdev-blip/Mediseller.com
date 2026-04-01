@@ -10,6 +10,7 @@ import { useCurrency } from '../context/CurrencyContext';
 import ProductCard from '../components/products/ProductCard';
 import { toast } from 'sonner';
 import DOMPurify from 'dompurify';
+import { marked } from 'marked';
 import {
   ShoppingCart,
   ChevronRight,
@@ -343,7 +344,7 @@ export default function ProductDetailPage() {
                   <h3 className="font-heading font-semibold text-lg mb-4">Product Description</h3>
                   <div 
                     className="text-slate-600 leading-relaxed prose-content"
-                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product.description) }}
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(product.description || '')) }}
                   />
                   <Separator className="my-6" />
                   <div className="grid md:grid-cols-2 gap-6">
@@ -393,7 +394,7 @@ export default function ProductDetailPage() {
                           </h3>
                           <div 
                             className="text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100 prose-content"
-                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product.storage_info) }}
+                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(product.storage_info || '')) }}
                           />
                         </div>
                       )}
@@ -417,7 +418,7 @@ export default function ProductDetailPage() {
                           <h3 className="font-heading font-bold text-lg mb-4 text-slate-900">Possible Side Effects</h3>
                           <div 
                             className="text-slate-600 leading-relaxed border-l-4 border-slate-100 pl-4 py-1 prose-content"
-                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product.side_effects) }}
+                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(product.side_effects || '')) }}
                           />
                         </div>
                       )}

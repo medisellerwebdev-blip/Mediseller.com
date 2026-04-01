@@ -254,7 +254,7 @@ export default function CheckoutPage() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main form */}
           <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form id="checkout-form" onSubmit={handleSubmit} className="space-y-6">
               {/* Guest checkout notice */}
               {!isAuthenticated && (
                 <Card className="border-blue-200 bg-blue-50">

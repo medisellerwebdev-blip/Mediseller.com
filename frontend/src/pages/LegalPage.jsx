@@ -4,6 +4,7 @@ import { Loader2, ChevronRight, Scale, Shield, Receipt } from 'lucide-react';
 import { Badge } from '../components/ui/badge';
 import { Card, CardContent } from '../components/ui/card';
 import DOMPurify from 'dompurify';
+import { marked } from 'marked';
 import { useConfig } from '../context/ConfigContext';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
@@ -104,7 +105,7 @@ export default function LegalPage() {
               {policyData?.content ? (
                 <div 
                   className="prose-content"
-                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(policyData.content) }} 
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(policyData.content)) }} 
                 />
               ) : (
                 <p>No content has been defined yet.</p>

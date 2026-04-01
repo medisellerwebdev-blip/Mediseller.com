@@ -13,9 +13,6 @@ const API_URL = process.env.REACT_APP_BACKEND_URL;
 export default function AboutPage() {
   const { config: siteConfig, loading } = useConfig();
 
-  // Debugging: Ensure it doesn't return null
-  console.log("Rendering AboutPage, siteConfig:", siteConfig);
-
   const aboutData = siteConfig?.about_page || {};
   const stats = aboutData.stats || [];
   const timeline = aboutData.timeline || [];
