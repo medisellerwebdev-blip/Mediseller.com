@@ -283,7 +283,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {loading ? (
+          {loadingProducts ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {[...Array(8)].map((_, i) => (
                 <Card key={i} className="animate-pulse">
