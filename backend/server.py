@@ -17,6 +17,8 @@ import ssl
 import shutil
 from fastapi.staticfiles import StaticFiles
 import httpx
+import hashlib
+import secrets
 # Load environment variables
 load_dotenv()
 
