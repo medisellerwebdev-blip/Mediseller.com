@@ -126,12 +126,12 @@ export default function AdminLoginPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center bg-primary/5 p-2 rounded-lg border border-primary/10">
                   <Label htmlFor="password">Password</Label>
                   <button 
                     type="button" 
                     onClick={() => setShowForgot(true)}
-                    className="text-xs text-primary hover:underline"
+                    className="text-xs font-bold text-primary hover:text-primary-dark underline decoration-2 underline-offset-4"
                   >
                     Forgot Password?
                   </button>

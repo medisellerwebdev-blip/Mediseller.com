@@ -167,6 +167,7 @@ export default function AdminDashboardPage() {
     { id: 'orders', label: 'Orders', icon: ShoppingBag, group: 'Business' },
     { id: 'users', label: 'Customers', icon: UsersIcon, group: 'Business' },
     { id: 'promotions', label: 'Promotions', icon: Ticket, group: 'Business' },
+    { id: 'security', label: 'Admin Security', icon: Shield, group: 'Business' },
     { id: 'blog', label: 'Blog CMS', icon: FileText, group: 'CMS' },
     { id: 'home', label: 'Home Page', icon: Home, group: 'CMS' },
     { id: 'about', label: 'About Page', icon: User, group: 'CMS' },
@@ -176,7 +177,6 @@ export default function AdminDashboardPage() {
     { id: 'consultations', label: 'Consultations', icon: Stethoscope, group: 'Support' },
     { id: 'prescriptions', label: 'Prescriptions', icon: FileCheck, group: 'Support' },
     { id: 'global', label: 'Global Settings', icon: Settings, group: 'System' },
-    { id: 'security', label: 'Security Settings', icon: Shield, group: 'System' },
   ];
 
   const sidebarGroups = [...new Set(navItems.map(item => item.group))];

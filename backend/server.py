@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Depends, Request, Response
+from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Depends, Request, Response, Query
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -1527,21 +1527,36 @@ async def get_cart(user_id: Optional[str] = None, session_id: Optional[str] = No
     return cart
 
 @api_router.put("/cart/update")
-async def update_cart_item(item: CartItem, user_id: Optional[str] = None, session_id: Optional[str] = None):
-    """Update item quantity in cart"""
+async def update_cart_item(
+    item: Optional[CartItem] = None, 
+    product_id: Optional[str] = Query(None), 
+    quantity: Optional[int] = Query(None),
+    user_id: Optional[str] = Query(None), 
+    session_id: Optional[str] = Query(None)
+):
+    """Update item quantity in cart - handles body or query params to avoid 422 errors"""
+    # Prefer body item if provided, else use query params
+    p_id = item.product_id if item else product_id
+    qty = item.quantity if item else quantity
+    
+    if p_id is None or qty is None:
+        raise HTTPException(status_code=422, detail="product_id and quantity are required")
+        
     query = {}
     if user_id: query["user_id"] = user_id
     elif session_id: query["session_id"] = session_id
     else: raise HTTPException(status_code=400, detail="User or Session ID required")
     
-    if item.quantity <= 0:
-        await db.carts.update_one(query, {"$pull": {"items": {"product_id": item.product_id}}, "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}})
+    if qty <= 0:
+        await db.carts.update_one(query, {"$pull": {"items": {"product_id": p_id}}, "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}})
     else:
-        cart = await db.carts.find_one({**query, "items.product_id": item.product_id})
-        if cart:
-            await db.carts.update_one({**query, "items.product_id": item.product_id}, {"$set": {"items.$.quantity": item.quantity, "updated_at": datetime.now(timezone.utc).isoformat()}})
+        cart_item_exists = await db.carts.find_one({**query, "items.product_id": p_id})
+        if cart_item_exists:
+            await db.carts.update_one({**query, "items.product_id": p_id}, {"$set": {"items.$.quantity": qty, "updated_at": datetime.now(timezone.utc).isoformat()}})
         else:
-            await db.carts.update_one(query, {"$push": {"items": item.model_dump()}, "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}})
+            # If not in cart, we might need a price. Default to 0 if not provided
+            price = item.price if item else 0.0
+            await db.carts.update_one(query, {"$push": {"items": {"product_id": p_id, "quantity": qty, "price": price}}, "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}})
     return {"success": True}
 
 @api_router.delete("/cart/clear")
