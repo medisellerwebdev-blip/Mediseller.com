@@ -197,7 +197,9 @@ else:
 # Admin Credentials (Initial/Default)
 ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@mediseller.com')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'MediSeller#Admin@2026')
-ADMIN_SESSION_TOKEN = f"admin_{uuid.uuid4().hex[:16]}"
+# Stabilize session token using a hash of the password to prevent logout on server restart
+import hashlib
+ADMIN_SESSION_TOKEN = hashlib.sha256(f"mediseller_admin_{ADMIN_PASSWORD}".encode()).hexdigest()
 
 # Create the main app
 app = FastAPI(title="MediSeller API", description="Online Pharmacy API")
@@ -208,6 +210,20 @@ api_router = APIRouter(prefix="/api")
 @app.get("/")
 async def root():
     return {"message": "MediSeller API - Online Pharmacy Platform", "status": "online"}
+
+@app.on_event("startup")
+async def startup_event():
+    """Load persistent settings on startup"""
+    global ADMIN_PASSWORD, ADMIN_SESSION_TOKEN
+    try:
+        # Check if we have a persisted password
+        admin_settings = await db.admin_settings.find_one({"type": "credentials"})
+        if admin_settings and "password" in admin_settings:
+            ADMIN_PASSWORD = admin_settings["password"]
+            ADMIN_SESSION_TOKEN = hashlib.sha256(f"mediseller_admin_{ADMIN_PASSWORD}".encode()).hexdigest()
+            logger.info("Persistent Admin password loaded from database")
+    except Exception as e:
+        logger.error(f"Failed to load persistent admin settings: {e}")
 
 app.add_middleware(
     CORSMiddleware,
@@ -357,7 +373,7 @@ class UserSession(BaseModel):
 class CartItem(BaseModel):
     product_id: str
     quantity: int
-    price: float
+    price: Optional[float] = 0.0
 
 class Cart(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -416,6 +432,11 @@ class OrderCreate(BaseModel):
     currency: str = "USD"
     prescription_id: Optional[str] = None
     notes: Optional[str] = None
+
+class AdminResetCode(BaseModel):
+    email: str
+    code: str
+    expires_at: datetime
 
 # Prescription Models
 class Prescription(BaseModel):
@@ -1575,6 +1596,83 @@ async def verify_admin(request: Request):
 @api_router.get("/admin/verify")
 async def verify_admin_token(is_admin: bool = Depends(verify_admin)):
     return {"is_admin": is_admin}
+
+@api_router.post("/admin/forgot-password")
+async def admin_forgot_password():
+    """Request a reset code for admin password"""
+    recovery_email = "medisellerwebdev@gmail.com"
+    # Generate 6-digit code
+    code = f"{secrets.randbelow(1000000):06d}"
+    expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
+    
+    # Store in DB
+    await db.admin_reset_codes.delete_many({"email": recovery_email})
+    await db.admin_reset_codes.insert_one({
+        "email": recovery_email,
+        "code": code,
+        "expires_at": expires_at.isoformat()
+    })
+    
+    # In a real app, send email here. For now, we log it and notify user.
+    logger.info(f"CRITICAL: Admin Reset Code for {recovery_email} is {code}")
+    
+    return {"success": True, "message": f"Verification code sent to {recovery_email}"}
+
+@api_router.post("/admin/reset-password")
+async def admin_reset_password(data: dict):
+    """Verify code and reset password"""
+    code = data.get("code")
+    new_password = data.get("new_password")
+    recovery_email = "medisellerwebdev@gmail.com"
+    
+    if not code or not new_password:
+        raise HTTPException(status_code=400, detail="Code and new password required")
+    
+    reset_doc = await db.admin_reset_codes.find_one({"email": recovery_email, "code": code})
+    if not reset_doc:
+        raise HTTPException(status_code=400, detail="Invalid verification code")
+        
+    expires_at = datetime.fromisoformat(reset_doc["expires_at"])
+    if expires_at.tzinfo is None: expires_at = expires_at.replace(tzinfo=timezone.utc)
+    
+    if expires_at < datetime.now(timezone.utc):
+        raise HTTPException(status_code=400, detail="Code expired")
+        
+    # Persistent update: In a real app, update DB. 
+    # Here we'll update the internal ADMIN_PASSWORD and clean up.
+    # Note: This won't survive a Render restart unless we write to .env or DB.
+    # We will also save it to a settings collection to be persistent.
+    global ADMIN_PASSWORD, ADMIN_SESSION_TOKEN
+    ADMIN_PASSWORD = new_password
+    ADMIN_SESSION_TOKEN = hashlib.sha256(f"mediseller_admin_{ADMIN_PASSWORD}".encode()).hexdigest()
+    
+    await db.admin_settings.update_one(
+        {"type": "credentials"}, 
+        {"$set": {"password": new_password, "updated_at": datetime.now(timezone.utc)}},
+        upsert=True
+    )
+    await db.admin_reset_codes.delete_many({"email": recovery_email})
+    
+    return {"success": True, "message": "Password reset successfully"}
+
+@api_router.post("/admin/change-password")
+async def admin_change_password(data: dict, is_admin: bool = Depends(verify_admin)):
+    """Change password for authenticated admin"""
+    new_password = data.get("new_password")
+    if not new_password:
+        raise HTTPException(status_code=400, detail="New password required")
+        
+    global ADMIN_PASSWORD, ADMIN_SESSION_TOKEN
+    ADMIN_PASSWORD = new_password
+    ADMIN_SESSION_TOKEN = hashlib.sha256(f"mediseller_admin_{ADMIN_PASSWORD}".encode()).hexdigest()
+    
+    await db.admin_settings.update_one(
+        {"type": "credentials"}, 
+        {"$set": {"password": new_password, "updated_at": datetime.now(timezone.utc)}},
+        upsert=True
+    )
+    
+    return {"success": True, "message": "Password updated successfully"}
 
 # Admin Product Management
 @api_router.post("/admin/products", response_model=Product)

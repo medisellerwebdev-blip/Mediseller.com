@@ -5,6 +5,7 @@ import { Button } from '../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Badge } from '../components/ui/badge';
 import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -34,6 +35,7 @@ import {
   MessageSquare,
   TrendingUp,
   Ticket,
+  Shield,
   Users as UsersIcon
 } from 'lucide-react';
 import HomeEditor from '../components/admin/HomeEditor';
@@ -174,6 +176,7 @@ export default function AdminDashboardPage() {
     { id: 'consultations', label: 'Consultations', icon: Stethoscope, group: 'Support' },
     { id: 'prescriptions', label: 'Prescriptions', icon: FileCheck, group: 'Support' },
     { id: 'global', label: 'Global Settings', icon: Settings, group: 'System' },
+    { id: 'security', label: 'Security Settings', icon: Shield, group: 'System' },
   ];
 
   const sidebarGroups = [...new Set(navItems.map(item => item.group))];
@@ -511,6 +514,82 @@ export default function AdminDashboardPage() {
 
             <TabsContent value="prescriptions">
                <PrescriptionManager />
+            </TabsContent>
+
+            <TabsContent value="users">
+               <UserManager />
+            </TabsContent>
+
+            <TabsContent value="security">
+              <Card className="border-slate-200 rounded-2xl shadow-sm overflow-hidden max-w-2xl">
+                <CardHeader className="bg-white border-b py-6">
+                  <CardTitle>Security Settings</CardTitle>
+                  <p className="text-xs text-slate-400 mt-1 uppercase font-bold tracking-widest">Update Admin Credentials</p>
+                </CardHeader>
+                <CardContent className="p-8">
+                  <div className="space-y-6">
+                    <div className="p-4 bg-amber-50 border border-amber-100 rounded-xl">
+                      <p className="text-xs text-amber-700 leading-relaxed">
+                        <strong>Security Warning:</strong> Changing your password will invalidate your current session on other devices. Please use a strong, unique password.
+                      </p>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="current-pass">New Password</Label>
+                        <Input 
+                          id="new-admin-pass" 
+                          type="password" 
+                          placeholder="Enter new secure password" 
+                          className="rounded-xl h-12"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="confirm-pass">Confirm New Password</Label>
+                        <Input 
+                          id="confirm-admin-pass" 
+                          type="password" 
+                          placeholder="Re-enter new password" 
+                          className="rounded-xl h-12"
+                        />
+                      </div>
+                      <Button 
+                        className="w-full rounded-full h-12 font-bold shadow-lg shadow-primary/20"
+                        onClick={async () => {
+                          const newPass = document.getElementById('new-admin-pass').value;
+                          const confirmPass = document.getElementById('confirm-admin-pass').value;
+                          
+                          if (!newPass || newPass !== confirmPass) {
+                            toast.error('Passwords do not match');
+                            return;
+                          }
+                          
+                          try {
+                            const res = await fetch(`${API_URL}/api/admin/change-password`, {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              credentials: 'include',
+                              body: JSON.stringify({ new_password: newPass })
+                            });
+                            
+                            if (res.ok) {
+                              toast.success('Password updated successfully');
+                              document.getElementById('new-admin-pass').value = '';
+                              document.getElementById('confirm-admin-pass').value = '';
+                            } else {
+                              toast.error('Failed to update password');
+                            }
+                          } catch (err) {
+                            toast.error('Connection error');
+                          }
+                        }}
+                      >
+                        Update Admin Password
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
         </div>
