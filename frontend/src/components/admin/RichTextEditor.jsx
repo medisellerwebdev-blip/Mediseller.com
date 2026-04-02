@@ -1,62 +1,29 @@
 import React from 'react';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
 
 /**
- * A customized Rich Text Editor using React Quill
- * @param {string} value - The HTML content
- * @param {function} onChange - Callback function for change events
- * @param {string} placeholder - Placeholder text
+ * A React 19 compatible Rich Text Editor alternative.
+ * Uses a styled textarea to avoid the 'findDOMNode' crash in react-quill.
  */
 const RichTextEditor = ({ value, onChange, placeholder = 'Write something amazing...' }) => {
-  const modules = {
-    toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-      ['link', 'clean'],
-    ],
-  };
-
-  const formats = [
-    'header',
-    'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet',
-    'link'
-  ];
-
   return (
     <div className="rich-text-editor bg-white rounded-xl overflow-hidden border border-slate-200 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-      <ReactQuill 
-        theme="snow"
+      <div className="bg-slate-50 border-bottom px-4 py-2 text-xs font-bold text-slate-500 uppercase tracking-wider flex justify-between items-center">
+        <span>Editor (HTML Compatible)</span>
+        <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Reactive Mode</span>
+      </div>
+      <textarea
         value={value || ''}
-        onChange={onChange}
-        modules={modules}
-        formats={formats}
+        onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="min-h-[150px]"
+        className="w-full min-h-[300px] p-4 text-sm font-mono text-slate-700 focus:outline-none resize-y leading-relaxed bg-white"
       />
-      <style jsx global>{`
-        .ql-container.ql-snow {
-          border: none !important;
-          font-family: inherit;
-          font-size: 0.875rem;
-          min-height: 150px;
-        }
-        .ql-toolbar.ql-snow {
-          border: none !important;
-          border-bottom: 1px solid #e2e8f0 !important;
-          background-color: #f8fafc;
-        }
-        .ql-editor {
-          min-height: 150px;
-          line-height: 1.6;
-        }
-        .ql-editor.ql-blank::before {
-          color: #94a3b8;
-          font-style: normal;
-        }
-      `}</style>
+      <div className="px-4 py-2 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
+        <span className="text-[10px] text-slate-400">Press Enter for new lines. HTML tags are supported.</span>
+        <div className="flex gap-2">
+           <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+           <span className="text-[10px] text-slate-500 italic">Safe Version Active</span>
+        </div>
+      </div>
     </div>
   );
 };
