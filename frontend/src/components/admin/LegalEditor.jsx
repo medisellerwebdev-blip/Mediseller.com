@@ -85,18 +85,14 @@ export default function LegalEditor() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-20">
-      <div className="flex items-center justify-between bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+      <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm sticky top-0 z-[40] mb-6 px-6 py-4">
         <div>
-          <h2 className="text-2xl font-bold font-heading text-slate-900 flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <FileText className="w-6 h-6 text-primary" />
-            </div>
-            Legal Pages Settings
-          </h2>
-          <p className="text-slate-500 mt-1">Manage Privacy Policy, Terms of Service, and Refund Policy content.</p>
+          <h2 className="text-xl font-bold text-slate-800">Legal Pages Editor</h2>
+          <p className="text-sm text-slate-500">Manage Privacy Policy, Terms and Refund Policy</p>
         </div>
-        <Button onClick={() => fetchConfig()} variant="outline" className="rounded-full shadow-sm">
-          Discard Changes
+        <Button onClick={handleSave} disabled={saving} className="bg-primary hover:bg-primary/90 shadow-sm px-6">
+          {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+          Save Changes
         </Button>
       </div>
 

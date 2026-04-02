@@ -69,21 +69,27 @@ export const CartProvider = ({ children }) => {
   };
 
   const updateQuantity = async (productId, quantity) => {
+    console.log(`Cart: Updating quantity for ${productId} to ${quantity}`);
     setLoading(true);
     try {
       const sessionId = getStoredSessionId();
-      const response = await fetch(
-        `${API_URL}/api/cart/update?product_id=${encodeURIComponent(productId)}&quantity=${quantity}&session_id=${encodeURIComponent(sessionId)}`,
-        {
-          method: 'PUT',
-          credentials: 'include',
-        }
-      );
+      const response = await fetch(`${API_URL}/api/cart/update?session_id=${encodeURIComponent(sessionId)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          product_id: productId,
+          quantity: quantity,
+          price: 0
+        })
+      });
       
       if (response.ok) {
+        console.log(`Cart: Successfully updated ${productId}`);
         await fetchCart();
         return true;
       }
+      console.error(`Cart: Failed to update ${productId}`, await response.text());
       return false;
     } catch (error) {
       console.error('Failed to update cart:', error);
@@ -94,6 +100,7 @@ export const CartProvider = ({ children }) => {
   };
 
   const removeFromCart = async (productId) => {
+    console.log(`Cart: Removing product ${productId}`);
     return updateQuantity(productId, 0);
   };
 

@@ -62,6 +62,11 @@ export default function AdminDashboardPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('products');
   
+  // Track tab changes for debugging
+  useEffect(() => {
+    console.log(`Admin Tab Switched to: ${activeTab}`);
+  }, [activeTab]);
+  
   // Product Editor State
   const [isProductEditorOpen, setIsProductEditorOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);

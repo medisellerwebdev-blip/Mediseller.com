@@ -81,6 +81,17 @@ export default function AboutEditor() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-20">
+      <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm sticky top-0 z-[40] mb-6 px-6 py-4">
+        <div>
+          <h2 className="text-xl font-bold text-slate-800">About Page Editor</h2>
+          <p className="text-sm text-slate-500">Manage mission, vision, timeline and advantage sections</p>
+        </div>
+        <Button onClick={handleSave} disabled={saving} className="bg-primary hover:bg-primary/90 shadow-sm px-6">
+          {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+          Save Changes
+        </Button>
+      </div>
+
       {/* Hero Section */}
       <Card className="border-slate-200">
         <CardHeader className="bg-slate-50/50 border-b">

@@ -11,7 +11,9 @@ import {
   CheckCircle2, 
   AlertCircle,
   Package,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Search,
+  Globe
 } from 'lucide-react';
 import RichTextEditor from './RichTextEditor';
 
@@ -46,7 +48,10 @@ export default function ProductEditor({ product, onSave, onClose }) {
     storage_info: '',
     rating: 4.8,
     order_count: 100,
-    additional_images: []
+    additional_images: [],
+    seo_title: '',
+    seo_description: '',
+    seo_keywords: ''
   });
 
   useEffect(() => {
@@ -57,7 +62,10 @@ export default function ProductEditor({ product, onSave, onClose }) {
         subcategory: product.subcategory || '',
         image_url: product.image_url || '',
         usage_instructions: product.usage_instructions || [],
-        additional_images: product.additional_images || []
+        additional_images: product.additional_images || [],
+        seo_title: product.seo_title || '',
+        seo_description: product.seo_description || '',
+        seo_keywords: product.seo_keywords || ''
       });
     }
   }, [product]);
@@ -131,7 +139,7 @@ export default function ProductEditor({ product, onSave, onClose }) {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, shouldClose = true) => {
     e.preventDefault();
     setLoading(true);
 
@@ -151,7 +159,13 @@ export default function ProductEditor({ product, onSave, onClose }) {
 
       if (res.ok) {
         toast.success(isEditing ? 'Product updated' : 'Product created');
-        onSave();
+        if (shouldClose) {
+          onSave();
+        } else {
+          // If we're staying, we should still notify the parent to refresh data in the background
+          // but we'll need a separate refresh call if we don't want to close the modal.
+          // For now, let's just not close it.
+        }
       } else {
         const err = await res.json();
         toast.error(err.detail || 'Failed to save product');
@@ -535,13 +549,88 @@ export default function ProductEditor({ product, onSave, onClose }) {
             </div>
           </div>
 
+          {/* SEO Section */}
+          <div className="space-y-6 pt-6 border-t bg-slate-50/30 p-6 rounded-2xl border border-slate-100">
+            <div className="flex justify-between items-center">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                <Globe className="w-4 h-4 text-primary" />
+                SEO & Search Optimization (AEO)
+              </h3>
+              <Button 
+                type="button" 
+                variant="soft" 
+                size="sm" 
+                className="bg-primary/10 text-primary hover:bg-primary/20 rounded-lg text-[10px] font-bold uppercase px-3"
+                onClick={() => {
+                  const title = `${formData.name} (${formData.generic_name}) - Buy Online | Mediseller`;
+                  const desc = formData.description ? formData.description.replace(/<[^>]*>/g, '').substring(0, 160) : '';
+                  const keywords = `${formData.name}, ${formData.generic_name}, ${formData.brand}, buy ${formData.name} online, generic ${formData.generic_name}`;
+                  setFormData(prev => ({
+                    ...prev,
+                    seo_title: title,
+                    seo_description: desc,
+                    seo_keywords: keywords
+                  }));
+                  toast.success('SEO tags generated!');
+                }}
+              >
+                Auto-Generate Tags
+              </Button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase text-slate-400">Meta Title</label>
+                <Input 
+                  name="seo_title" 
+                  value={formData.seo_title} 
+                  onChange={handleInputChange} 
+                  placeholder="Appears in Google search results..." 
+                  className="bg-white border-slate-200"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase text-slate-400">Meta Description</label>
+                <textarea 
+                  name="seo_description"
+                  value={formData.seo_description} 
+                  onChange={handleInputChange}
+                  rows={2}
+                  className="flex w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  placeholder="Brief summary for search engines..."
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase text-slate-400">Keywords (CSV)</label>
+                <Input 
+                  name="seo_keywords" 
+                  value={formData.seo_keywords} 
+                  onChange={handleInputChange} 
+                  placeholder="pharmacy, medicine, buy online..." 
+                  className="bg-white border-slate-200"
+                />
+              </div>
+            </div>
+          </div>
+
           <div className="sticky bottom-0 bg-white border-t p-6 flex justify-end gap-3 z-10 mx-[-2rem] mb-[-2rem]">
             <Button type="button" variant="outline" onClick={onClose} className="rounded-full px-6">
               Discard Changes
             </Button>
-            <Button type="submit" disabled={loading} className="rounded-full px-8 shadow-lg shadow-primary/20">
-              {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-              {isEditing ? 'Save Product' : 'Create Product'}
+            <Button 
+                type="button" 
+                variant="outline" 
+                onClick={(e) => {
+                    handleSubmit(e, false);
+                }} 
+                className="rounded-full px-6 border-primary text-primary hover:bg-primary/5"
+            >
+                {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                Save & Continue
+            </Button>
+            <Button type="submit" disabled={loading} onClick={(e) => handleSubmit(e, true)} className="rounded-full px-10 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20">
+              {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+              {product ? 'Update Product' : 'Create Product'}
             </Button>
           </div>
         </form>

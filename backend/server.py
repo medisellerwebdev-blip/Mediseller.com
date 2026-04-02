@@ -288,6 +288,9 @@ class Product(BaseModel):
     rating: float = 4.8
     order_count: int = 150
     additional_images: List[str] = Field(default_factory=list)
+    seo_title: Optional[str] = None
+    seo_description: Optional[str] = None
+    seo_keywords: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ProductCreate(BaseModel):
@@ -313,6 +316,9 @@ class ProductCreate(BaseModel):
     rating: float = 4.8
     order_count: int = 150
     additional_images: List[str] = Field(default_factory=list)
+    seo_title: Optional[str] = None
+    seo_description: Optional[str] = None
+    seo_keywords: Optional[str] = None
 
 import hashlib
 import secrets
@@ -1583,8 +1589,17 @@ async def create_product(product: ProductCreate, is_admin: bool = Depends(verify
 @api_router.put("/admin/products/{product_id}")
 async def update_product(product_id: str, product_data: dict, is_admin: bool = Depends(verify_admin)):
     if "_id" in product_data: del product_data["_id"]
+    # Ensure product_id remains consistent if passed in data
+    if "product_id" in product_data: del product_data["product_id"]
+    
     result = await db.products.update_one({"product_id": product_id}, {"$set": product_data})
-    return {"success": True, "modified_count": 1}
+    if result.modified_count == 0:
+        # Check if product exists but no changes were made
+        exists = await db.products.find_one({"product_id": product_id})
+        if not exists:
+            raise HTTPException(status_code=404, detail="Product not found")
+            
+    return {"success": True, "modified_count": result.modified_count}
 
 @api_router.delete("/admin/products/{product_id}")
 async def delete_product(product_id: str, is_admin: bool = Depends(verify_admin)):
