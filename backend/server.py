@@ -1538,10 +1538,11 @@ async def update_cart_item(
 ):
     """Update item quantity in cart - handles body or query params to avoid 422 errors"""
     # Prefer body item if provided, else use query params
-    p_id = item.product_id if item else product_id
-    qty = item.quantity if item else quantity
+    p_id = (item.product_id if item else None) or product_id
+    qty = (item.quantity if item is not None else None) if quantity is None else quantity
     
     if p_id is None or qty is None:
+        logger.error(f"Cart Update Error: Missing product_id ({p_id}) or quantity ({qty})")
         raise HTTPException(status_code=422, detail="product_id and quantity are required")
         
     query = {}
@@ -1549,16 +1550,38 @@ async def update_cart_item(
     elif session_id: query["session_id"] = session_id
     else: raise HTTPException(status_code=400, detail="User or Session ID required")
     
-    if qty <= 0:
-        await db.carts.update_one(query, {"$pull": {"items": {"product_id": p_id}}, "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}})
+    logger.info(f"Cart Action: product={p_id}, quantity={qty}, query={query}")
+
+    if int(qty) <= 0:
+        # Fail-safe deletion: Find cart, filter items in python, update document
+        cart = await db.carts.find_one(query)
+        if cart:
+            original_count = len(cart.get("items", []))
+            new_items = [item for item in cart.get("items", []) if item.get("product_id") != p_id]
+            await db.carts.update_one(query, {"$set": {"items": new_items, "updated_at": datetime.now(timezone.utc).isoformat()}})
+            logger.info(f"Cart Deletion: Removed {p_id} (Count: {original_count} -> {len(new_items)})")
     else:
-        cart_item_exists = await db.carts.find_one({**query, "items.product_id": p_id})
-        if cart_item_exists:
-            await db.carts.update_one({**query, "items.product_id": p_id}, {"$set": {"items.$.quantity": qty, "updated_at": datetime.now(timezone.utc).isoformat()}})
+        # Update or Push
+        cart = await db.carts.find_one(query)
+        if cart:
+            found = False
+            items = cart.get("items", [])
+            for item_doc in items:
+                if item_doc.get("product_id") == p_id:
+                    item_doc["quantity"] = int(qty)
+                    found = True
+                    break
+            
+            if found:
+                await db.carts.update_one(query, {"$set": {"items": items, "updated_at": datetime.now(timezone.utc).isoformat()}})
+            else:
+                price = (item.price if item else 0.0) or 0.0
+                await db.carts.update_one(query, {"$push": {"items": {"product_id": p_id, "quantity": int(qty), "price": price}}, "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}})
         else:
-            # If not in cart, we might need a price. Default to 0 if not provided
-            price = item.price if item else 0.0
-            await db.carts.update_one(query, {"$push": {"items": {"product_id": p_id, "quantity": qty, "price": price}}, "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}})
+            # Create new cart if missing
+            price = (item.price if item else 0.0) or 0.0
+            await db.carts.insert_one({**query, "items": [{"product_id": p_id, "quantity": int(qty), "price": price}], "updated_at": datetime.now(timezone.utc).isoformat()})
+            
     return {"success": True}
 
 @api_router.delete("/cart/clear")
