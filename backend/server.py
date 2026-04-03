@@ -6,7 +6,7 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
-from typing import List, Optional
+from typing import List, Optional, Any, Union
 import uuid
 import re
 from datetime import datetime, timezone, timedelta
@@ -19,6 +19,8 @@ from fastapi.staticfiles import StaticFiles
 import httpx
 import hashlib
 import secrets
+import cloudinary
+import cloudinary.uploader
 # Load environment variables
 load_dotenv()
 
@@ -159,6 +161,7 @@ class MockDB:
         self.prescriptions = MockCollection()
         self.consultations = MockCollection()
         self.site_config = MockCollection()
+        self.admin_settings = MockCollection()
         self.coupons = MockCollection()
         self.posts = MockCollection()
 
@@ -182,7 +185,6 @@ else:
             tlsCAFile=ca, 
             tlsAllowInvalidCertificates=True,
             tlsAllowInvalidHostnames=True,
-            ssl_cert_reqs=ssl.CERT_NONE,
             serverSelectionTimeoutMS=5000,
             connectTimeoutMS=10000,
             maxPoolSize=50,
@@ -586,11 +588,7 @@ class AboutConfig(BaseModel):
         {"value": "30+", "label": "Countries"},
         {"value": "99%", "label": "Delivery Rate"}
     ])
-    advantage_section: List[FeatureItem] = Field(default_factory=lambda: [
-        {"title": "100% Authentic Products", "description": "All medications are sourced directly from licensed manufacturers.", "icon_name": "Shield"},
-        {"title": "Global Delivery", "description": "Insured express air shipping to over 30 countries.", "icon_name": "Truck"},
-        {"title": "60%+ Savings", "description": "Significant cost savings on brand-name equivalent medications.", "icon_name": "TrendingDown"}
-    ])
+    advantage_section: Optional[Any] = Field(default_factory=list)
     advantage_title: str = "The MediSeller Advantage"
     advantage_subtitle: str = "What sets us apart in the pharmaceutical distribution industry"
     compliance_section: dict = Field(default_factory=lambda: {
@@ -1398,7 +1396,7 @@ async def get_products(
             ]
         
         cursor = db.products.find(query, {"_id": 0})
-        products = await cursor.skip(skip).limit(limit).to_list(limit)
+        products = await cursor.sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
         return products
     except Exception as e:
         logger.error(f"Error in get_products: {e}")
@@ -3031,24 +3029,43 @@ Approved refunds are processed to the original payment method within 5-10 busine
         "testimonials": len(testimonials_data)
     }
 
+# Configure Cloudinary
+# Use CLOUDINARY_URL from environment for simplicity
+cloudinary_url = os.environ.get("CLOUDINARY_URL")
+if cloudinary_url:
+    cloudinary.config(cloudinary_url=cloudinary_url)
+    logger.info("Cloudinary configured for persistent storage")
+else:
+    logger.warning("CLOUDINARY_URL not found. Uploads will fallback to local storage (ephemeral).")
+
 # Image Upload Endpoint
 @api_router.post("/admin/upload-image")
 async def upload_image(file: UploadFile = File(...)):
     try:
-        # Create a unique filename
-        file_extension = os.path.splitext(file.filename)[1]
-        unique_filename = f"{uuid.uuid4().hex}{file_extension}"
-        file_path = os.path.join(UPLOAD_DIR, unique_filename)
-        
-        # Save the file
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+        if not os.environ.get("CLOUDINARY_URL"):
+            # Fallback to local storage if Cloudinary is not configured
+            file_extension = os.path.splitext(file.filename)[1]
+            unique_filename = f"{uuid.uuid4().hex}{file_extension}"
+            file_path = os.path.join(UPLOAD_DIR, unique_filename)
             
-        # Return the public URL
-        # For production, we should ideally use the actual domain, but for now we fallback
-        base_url = os.environ.get("BASE_URL", "http://localhost:8001")
-        return {"url": f"{base_url}/uploads/{unique_filename}"}
+            with open(file_path, "wb") as buffer:
+                shutil.copyfileobj(file.file, buffer)
+                
+            base_url = os.environ.get("BASE_URL", "http://localhost:8001")
+            return {"url": f"{base_url}/uploads/{unique_filename}"}
+
+        # Upload to Cloudinary
+        upload_result = cloudinary.uploader.upload(
+            file.file,
+            folder="mediseller_products",
+            use_filename=True,
+            unique_filename=True,
+            resource_type="auto"
+        )
+        
+        return {"url": upload_result.get("secure_url")}
     except Exception as e:
+        logger.error(f"Upload failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
 # Include the router in the main app

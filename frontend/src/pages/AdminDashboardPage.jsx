@@ -52,6 +52,8 @@ import UserManager from '../components/admin/UserManager';
 import PromotionManager from '../components/admin/PromotionManager';
 import BlogManager from '../components/admin/BlogManager';
 import { Sheet, SheetContent, SheetTrigger } from '../components/ui/sheet';
+import ErrorBoundary from '../components/common/ErrorBoundary';
+
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -84,7 +86,7 @@ export default function AdminDashboardPage() {
   const fetchData = async () => {
     try {
       const [prodRes, orderRes] = await Promise.all([
-        fetch(`${API_URL}/api/products?limit=100`, { credentials: 'include' }),
+        fetch(`${API_URL}/api/products?limit=2000`, { credentials: 'include' }),
         fetch(`${API_URL}/api/admin/orders`, { credentials: 'include' })
       ]);
 
@@ -295,7 +297,9 @@ export default function AdminDashboardPage() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsContent value="products">
+            <ErrorBoundary key={activeTab}>
+              <TabsContent value="products">
+
               <Card className="border-slate-200 shadow-sm rounded-2xl overflow-hidden">
                 <CardHeader className="flex flex-row items-center justify-between border-b bg-white py-6">
                   <div>
@@ -591,7 +595,9 @@ export default function AdminDashboardPage() {
                 </CardContent>
               </Card>
             </TabsContent>
+            </ErrorBoundary>
           </Tabs>
+
         </div>
       </div>
 
