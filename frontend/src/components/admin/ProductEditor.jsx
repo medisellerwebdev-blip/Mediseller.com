@@ -499,54 +499,128 @@ export default function ProductEditor({ product, onSave, onClose }) {
             </div>
           </div>
 
-          {/* Gallery */}
-          <div className="space-y-4">
+          {/* Gallery - Enhanced for 3+ Images */}
+          <div className="space-y-6">
             <div className="flex justify-between items-center border-b pb-2">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500">Additional Gallery Images</h3>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500">Product Image Gallery (Min 3 Recommended)</h3>
               <Button 
                 type="button" 
                 variant="outline" 
                 size="sm" 
-                className="h-8 text-xs gap-1.5 rounded-lg"
+                className="h-8 text-xs gap-1.5 rounded-lg border-primary/30 text-primary"
                 onClick={() => setFormData(prev => ({ ...prev, additional_images: [...prev.additional_images, ''] }))}
               >
-                Add Image Slot
+                <Plus className="w-3.5 h-3.5 mr-1" />
+                Add More Images
               </Button>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {formData.additional_images.map((url, index) => (
-                <div key={index} className="space-y-2 p-3 border rounded-xl bg-slate-50/50">
-                  <div className="flex justify-between items-center">
-                    <label className="text-[10px] font-bold uppercase text-slate-400">Image {index + 1}</label>
-                    <button 
-                      type="button" 
-                      onClick={() => setFormData(prev => ({ 
-                        ...prev, 
-                        additional_images: prev.additional_images.filter((_, i) => i !== index) 
-                      }))}
-                      className="text-red-400 hover:text-red-600 transition-colors"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                  <Input 
-                    value={url} 
-                    onChange={(e) => {
-                      const newImages = [...formData.additional_images];
-                      newImages[index] = e.target.value;
-                      setFormData(prev => ({ ...prev, additional_images: newImages }));
-                    }}
-                    placeholder="https://..."
-                    className="h-8 text-xs bg-white"
-                  />
-                  {url && (
-                    <div className="mt-2 aspect-video rounded-lg overflow-hidden border">
-                      <img src={url} alt="" className="w-full h-full object-cover" />
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Primary Image Thumbnail for Reference */}
+              <div className="space-y-2 p-4 border-2 border-primary/10 rounded-2xl bg-primary/5">
+                <label className="text-[10px] font-bold uppercase text-primary">Main Image (Primary)</label>
+                <div className="aspect-square rounded-xl overflow-hidden border bg-white shadow-sm">
+                  {formData.image_url ? (
+                    <img src={formData.image_url} alt="Main" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-slate-300">
+                      <ImageIcon className="w-8 h-8" />
                     </div>
                   )}
                 </div>
-              ))}
+                <p className="text-[10px] text-center text-slate-400 mt-1 italic">Set in the "Primary Image" section above</p>
+              </div>
+
+              {/* Explicit Slots for Additional Images */}
+              {[0, 1].map((idx) => {
+                const url = formData.additional_images[idx] || '';
+                return (
+                  <div key={`fixed-${idx}`} className="space-y-2 p-4 border-2 border-dashed border-slate-200 rounded-2xl bg-white hover:border-primary/30 transition-all">
+                    <div className="flex justify-between items-center">
+                      <label className="text-[10px] font-bold uppercase text-slate-500">Additional Image {idx + 1}</label>
+                      {url && (
+                        <button 
+                          type="button" 
+                          onClick={() => {
+                            const newImages = [...formData.additional_images];
+                            newImages[idx] = '';
+                            setFormData(prev => ({ ...prev, additional_images: newImages }));
+                          }}
+                          className="text-red-400 hover:text-red-600"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                    <Input 
+                      value={url} 
+                      onChange={(e) => {
+                        const newImages = [...formData.additional_images];
+                        while (newImages.length <= idx) newImages.push('');
+                        newImages[idx] = e.target.value;
+                        setFormData(prev => ({ ...prev, additional_images: newImages }));
+                      }}
+                      placeholder="Paste Image URL here..."
+                      className="h-9 text-xs bg-slate-50/50 border-slate-100"
+                    />
+                    <div className="aspect-square rounded-xl overflow-hidden border bg-slate-50 flex items-center justify-center group relative mt-2">
+                      {url ? (
+                        <img src={url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="text-center">
+                          <ImageIcon className="w-6 h-6 text-slate-200 mx-auto" />
+                          <span className="text-[9px] text-slate-300 block mt-1 uppercase font-bold">Slot {idx + 1} Empty</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Extra images */}
+              {formData.additional_images.slice(2).map((url, extraIdx) => {
+                const index = extraIdx + 2;
+                return (
+                  <div key={`extra-${index}`} className="space-y-2 p-4 border-2 border-dashed border-slate-200 rounded-2xl bg-white hover:border-primary/30 transition-all">
+                    <div className="flex justify-between items-center">
+                      <label className="text-[10px] font-bold uppercase text-slate-500">Extra Image {index + 1}</label>
+                      <button 
+                        type="button" 
+                        onClick={() => setFormData(prev => ({ 
+                          ...prev, 
+                          additional_images: prev.additional_images.filter((_, i) => i !== index) 
+                        }))}
+                        className="text-red-400 hover:text-red-600"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <Input 
+                      value={url} 
+                      onChange={(e) => {
+                        const newImages = [...formData.additional_images];
+                        newImages[index] = e.target.value;
+                        setFormData(prev => ({ ...prev, additional_images: newImages }));
+                      }}
+                      placeholder="https://..."
+                      className="h-9 text-xs bg-slate-50/50 border-slate-100"
+                    />
+                    <div className="aspect-square rounded-xl overflow-hidden border bg-slate-50 flex items-center justify-center mt-2">
+                      {url ? (
+                        <img src={url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <ImageIcon className="w-6 h-6 text-slate-200" />
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
+            
+            <p className="text-[11px] text-slate-400 flex items-center gap-1.5 mt-2">
+              <AlertCircle className="w-3 h-3" />
+              Tip: Uploading at least 3 high-quality images improves customer trust and conversion rates.
+            </p>
           </div>
 
           {/* SEO Section */}
