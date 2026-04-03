@@ -5,6 +5,7 @@ import { Badge } from '../ui/badge';
 import { toast } from 'sonner';
 import { 
   X, 
+  Plus,
   Save, 
   Upload, 
   Loader2, 

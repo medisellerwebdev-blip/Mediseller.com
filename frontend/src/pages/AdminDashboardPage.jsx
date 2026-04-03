@@ -61,8 +61,41 @@ import {
 import { 
   Download,
   FileSpreadsheet,
-  Filter
+  Filter,
+  AlertTriangle
 } from 'lucide-react';
+
+// Simple ErrorBoundary component to prevent entire dashboard crashes
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('Admin Panel Error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-12 text-center bg-white rounded-3xl border border-slate-100 shadow-sm">
+          <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-slate-900 mb-2">Something went wrong</h2>
+          <p className="text-slate-500 mb-6 text-sm">There was an error loading this specific management tab.</p>
+          <Button onClick={() => window.location.reload()} variant="primary">
+            Reload Dashboard
+          </Button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
