@@ -22,12 +22,12 @@ jobs:
       - name: Install Frontend Dependencies
         run: |
           cd frontend
-          yarn install
+          npm install
 
       - name: Build Frontend
         run: |
           cd frontend
-          yarn build
+          npm run build
         env:
           CI: false
           NODE_OPTIONS: "--max-old-space-size=4096"
