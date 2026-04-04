@@ -99,6 +99,8 @@ class ErrorBoundary extends React.Component {
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
+// Build Trigger: 2026-04-04 (Firebase Automation Active)
+
 export default function AdminDashboardPage() {
   const { logout } = useAuth();
   const { formatPrice } = useCurrency();

@@ -22,14 +22,15 @@ jobs:
       - name: Install Frontend Dependencies
         run: |
           cd frontend
-          npm install
+          yarn install
 
       - name: Build Frontend
         run: |
           cd frontend
-          npm run build
+          yarn build
         env:
-          CI: false # Prevents warnings from being treated as errors
+          CI: false
+          NODE_OPTIONS: "--max-old-space-size=4096"
           REACT_APP_BACKEND_URL: https://mediseller-com.onrender.com
 
       - name: Deploy to Firebase
