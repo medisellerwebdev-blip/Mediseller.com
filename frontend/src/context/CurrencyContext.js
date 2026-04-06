@@ -32,11 +32,10 @@ export const CurrencyProvider = ({ children }) => {
             const data = await response.json();
             if (data.country_code === 'IN') {
               setCurrency('INR');
-              console.log('Currency: Refined to INR based on IP location (India)');
-            } else if (data.country_code === 'US' || data.country_code === 'GB' || data.country_code === 'CA') {
-              // Only switch to USD if it's a major international market or not India
+              console.log('Currency: Defaulting to INR (India)');
+            } else {
               setCurrency('USD');
-              console.log(`Currency: Initialized to USD based on country: ${data.country_name}`);
+              console.log(`Currency: Defaulting to USD for country: ${data.country_name}`);
             }
           }
         } catch (error) {

@@ -86,21 +86,13 @@ export default function ProductEditor({ product, onSave, onClose }) {
     fetchCategories();
   }, []);
 
-  // Auto-calculate discount or price
+  // Sync discount if original_price and price are changed
   useEffect(() => {
     if (formData.original_price > 0 && formData.price > 0) {
       const discount = Math.round(((formData.original_price - formData.price) / formData.original_price) * 100);
       if (discount !== formData.discount_percentage) {
         setFormData(prev => ({ ...prev, discount_percentage: discount }));
       }
-    }
-    
-    // Auto-calculate INR if zero (helpful for new products)
-    if (formData.price > 0 && (formData.price_inr === 0 || !formData.price_inr)) {
-        setFormData(prev => ({ ...prev, price_inr: Math.round(formData.price * 83) }));
-    }
-    if (formData.original_price > 0 && (formData.original_price_inr === 0 || !formData.original_price_inr)) {
-        setFormData(prev => ({ ...prev, original_price_inr: Math.round(formData.original_price * 83) }));
     }
   }, [formData.price, formData.original_price]);
 
@@ -219,12 +211,23 @@ export default function ProductEditor({ product, onSave, onClose }) {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Brand / Manufacturer</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Brand Name</label>
               <Input 
                 name="brand" 
                 value={formData.brand} 
                 onChange={handleInputChange} 
                 placeholder="e.g. Novartis" 
+                required 
+                className="rounded-xl border-slate-200"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Manufacturer</label>
+              <Input 
+                name="manufacturer" 
+                value={formData.manufacturer} 
+                onChange={handleInputChange} 
+                placeholder="e.g. Novartis India Ltd" 
                 required 
                 className="rounded-xl border-slate-200"
               />
@@ -333,8 +336,8 @@ export default function ProductEditor({ product, onSave, onClose }) {
                   type="number" 
                   name="discount_percentage" 
                   value={formData.discount_percentage} 
-                  readOnly 
-                  className="bg-slate-100 cursor-not-allowed font-bold text-primary"
+                  onChange={handleInputChange} 
+                  className="bg-white font-bold text-primary"
                 />
               </div>
             </div>

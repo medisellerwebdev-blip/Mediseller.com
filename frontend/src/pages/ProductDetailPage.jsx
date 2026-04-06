@@ -188,8 +188,13 @@ export default function ProductDetailPage() {
               <h1 className="font-heading text-3xl md:text-4xl font-bold text-slate-900 mb-2">
                 {product.name}
               </h1>
-              <p className="text-lg text-slate-600">{product.generic_name}</p>
-              <p className="text-slate-500">by {product.brand}</p>
+              <p className="text-lg text-slate-600 mb-1">{product.generic_name}</p>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+                <p className="text-slate-500"><span className="font-semibold text-slate-700">Brand:</span> {product.brand}</p>
+                {product.manufacturer && (
+                  <p className="text-slate-500"><span className="font-semibold text-slate-700">Manufacturer:</span> {product.manufacturer}</p>
+                )}
+              </div>
             </div>
 
             {/* Rating */}

@@ -66,7 +66,8 @@ export const ProductCard = ({ product }) => {
               <span className="text-[10px] text-slate-400">•</span>
               <span className="text-[10px] text-slate-500 font-medium">{product.order_count || '150'}+ ordered</span>
             </div>
-            <p className="text-sm text-slate-500">{product.generic_name}</p>
+            <p className="text-sm text-slate-500 font-medium mb-1 truncate">{product.generic_name}</p>
+            <p className="text-[10px] text-slate-400 italic mb-1">by {product.manufacturer || product.brand}</p>
           </div>
           
           <div className="flex items-center gap-2 mb-3">
