@@ -27,6 +27,7 @@ export default function ProductEditor({ product, onSave, onClose }) {
   const [categories, setCategories] = useState(["Cancer", "HIV/AIDS", "Hepatitis", "Erectile Dysfunction", "Diabetes & Insulin", "Weight Loss", "Fertility", "Other"]);
   const [formData, setFormData] = useState({
     name: '',
+    slug: '',
     generic_name: '',
     brand: '',
     category: 'Cancer',
@@ -60,6 +61,7 @@ export default function ProductEditor({ product, onSave, onClose }) {
       setFormData({
         ...formData,
         ...product,
+        slug: product.slug || '',
         subcategory: product.subcategory || '',
         image_url: product.image_url || '',
         usage_instructions: product.usage_instructions || [],
@@ -285,7 +287,7 @@ export default function ProductEditor({ product, onSave, onClose }) {
           <div className="bg-slate-50 p-6 rounded-2xl space-y-6 border border-slate-100">
             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
               Price & Discounts
-              <Badge variant="outline" className="bg-white">Auto-calculated</Badge>
+              <Badge variant="outline" className="bg-white text-primary">Manual Entry</Badge>
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="space-y-2">
@@ -643,20 +645,51 @@ export default function ProductEditor({ product, onSave, onClose }) {
                   const title = `${formData.name} (${formData.generic_name}) - Buy Online | Mediseller`;
                   const desc = formData.description ? formData.description.replace(/<[^>]*>/g, '').substring(0, 160) : '';
                   const keywords = `${formData.name}, ${formData.generic_name}, ${formData.brand}, buy ${formData.name} online, generic ${formData.generic_name}`;
+                  const slug = formData.name.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').trim().replace(/^-+|-+$/g, '');
+                  
                   setFormData(prev => ({
                     ...prev,
                     seo_title: title,
                     seo_description: desc,
-                    seo_keywords: keywords
+                    seo_keywords: keywords,
+                    slug: prev.slug || slug // Only auto-fill if empty
                   }));
-                  toast.success('SEO tags generated!');
+                  toast.success('SEO tags & Slug generated!');
                 }}
               >
-                Auto-Generate Tags
+                Auto-Generate Tags & Slug
               </Button>
             </div>
             
             <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase text-slate-400">URL Slug (SEO Friendly URL)</label>
+                <div className="flex gap-2">
+                   <div className="flex-1 relative">
+                      <span className="absolute left-3 top-2.5 text-slate-400 text-xs">/products/</span>
+                      <Input 
+                        name="slug" 
+                        value={formData.slug} 
+                        onChange={handleInputChange} 
+                        placeholder="my-awesome-medicine" 
+                        className="pl-[70px] bg-white border-primary/20"
+                      />
+                   </div>
+                   <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm"
+                    className="h-10 text-[10px]"
+                    onClick={() => {
+                       const slug = formData.name.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').trim().replace(/^-+|-+$/g, '');
+                       setFormData(prev => ({ ...prev, slug }));
+                    }}
+                   >
+                     Generate
+                   </Button>
+                </div>
+                <p className="text-[10px] text-slate-400 italic">Changing this will change the URL of the product page. Be careful with existing links.</p>
+              </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-bold uppercase text-slate-400">Meta Title</label>
                 <Input 

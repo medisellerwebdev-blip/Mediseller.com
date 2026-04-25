@@ -27,7 +27,7 @@ export const ProductCard = ({ product }) => {
   const savings_inr = (product.original_price_inr || 0) - (product.price_inr || 0);
 
   return (
-    <Link to={`/products/${product.product_id}`} data-testid={`product-card-${product.product_id}`}>
+    <Link to={`/products/${product.slug || product.product_id}`} data-testid={`product-card-${product.product_id}`}>
       <Card className="group overflow-hidden border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 h-full">
         <div className="relative aspect-square bg-slate-50 overflow-hidden">
           <img

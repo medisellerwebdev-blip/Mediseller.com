@@ -32,7 +32,7 @@ import PrescriptionUpload from '../components/prescription/PrescriptionUpload';
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 export default function ProductDetailPage() {
-  const { productId } = useParams();
+  const { slugOrId } = useParams();
   const navigate = useNavigate();
   const { addToCart, loading: cartLoading } = useCart();
   const { formatPrice } = useCurrency();
@@ -47,7 +47,7 @@ export default function ProductDetailPage() {
     const fetchProduct = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`${API_URL}/api/products/${productId}`);
+        const response = await fetch(`${API_URL}/api/products/${slugOrId}`);
         if (response.ok) {
           const data = await response.json();
           setProduct(data);
@@ -57,8 +57,8 @@ export default function ProductDetailPage() {
             `${API_URL}/api/products?category=${encodeURIComponent(data.category)}&limit=4`
           );
           if (relatedRes.ok) {
-            const relatedData = await relatedRes.json();
-            setRelatedProducts(relatedData.filter((p) => p.product_id !== productId).slice(0, 4));
+            const relatedData = await relatedRes.ok ? await relatedRes.json() : [];
+            setRelatedProducts(relatedData.filter((p) => p.product_id !== data.product_id).slice(0, 4));
           }
 
           // Fetch site config
@@ -78,7 +78,7 @@ export default function ProductDetailPage() {
     };
 
     fetchProduct();
-  }, [productId, navigate]);
+  }, [slugOrId, navigate]);
 
   const handleAddToCart = async () => {
     for (let i = 0; i < quantity; i++) {

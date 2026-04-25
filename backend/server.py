@@ -284,6 +284,7 @@ class StatusCheckCreate(BaseModel):
 class Product(BaseModel):
     model_config = ConfigDict(extra="ignore")
     product_id: str = Field(default_factory=lambda: f"prod_{uuid.uuid4().hex[:12]}")
+    slug: Optional[str] = None
     name: str
     generic_name: str
     brand: str
@@ -315,6 +316,7 @@ class Product(BaseModel):
 
 class ProductCreate(BaseModel):
     name: str
+    slug: Optional[str] = None
     generic_name: str
     brand: str
     category: str
@@ -352,6 +354,16 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     if not hashed_password or ":" not in hashed_password: return False
     phash, salt = hashed_password.split(":")
     return hashlib.sha256((plain_password + salt).encode()).hexdigest() == phash
+
+def slugify(text: str) -> str:
+    """Generate a URL-friendly slug from text"""
+    text = text.lower()
+    # Replace anything not a letter, number, or space/hyphen with empty string
+    text = re.sub(r'[^\w\s-]', '', text)
+    # Replace spaces and underscores with hyphens
+    text = re.sub(r'[\s_-]+', '-', text)
+    # Strip leading/trailing hyphens
+    return text.strip('-')
 
 # User Models
 class User(BaseModel):
@@ -1404,8 +1416,25 @@ async def get_products(
 
 @api_router.get("/products/{product_id}")
 async def get_product(product_id: str):
-    """Get single product by ID"""
+    """Get single product by ID or Slug"""
+    # First try by product_id
     product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
+    if not product:
+        # Fallback: try by slug
+        product = await db.products.find_one({"slug": product_id}, {"_id": 0})
+        
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return product
+
+@api_router.get("/products/slug/{slug}")
+async def get_product_by_slug(slug: str):
+    """Get single product by Slug"""
+    product = await db.products.find_one({"slug": slug}, {"_id": 0})
+    if not product:
+        # Fallback: try by product_id
+        product = await db.products.find_one({"product_id": slug}, {"_id": 0})
+        
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     return product
@@ -1716,6 +1745,11 @@ async def admin_change_password(data: dict, is_admin: bool = Depends(verify_admi
 @api_router.post("/admin/products", response_model=Product)
 async def create_product(product: ProductCreate, is_admin: bool = Depends(verify_admin)):
     product_dict = product.model_dump()
+    
+    # Generate slug if not provided
+    if not product_dict.get("slug"):
+        product_dict["slug"] = slugify(product_dict["name"])
+        
     new_product = Product(**product_dict)
     doc = new_product.model_dump()
     doc["created_at"] = doc["created_at"].isoformat()
@@ -1728,6 +1762,12 @@ async def update_product(product_id: str, product_data: dict, is_admin: bool = D
     # Ensure product_id remains consistent if passed in data
     if "product_id" in product_data: del product_data["product_id"]
     
+    # Generate slug if name is updated but slug isn't
+    if "name" in product_data and "slug" not in product_data:
+        # We don't necessarily want to change the slug if only the name changes slightly
+        # but for a new name, it might be expected. Let's stick to explicit slug updates or keep old one.
+        pass
+        
     result = await db.products.update_one({"product_id": product_id}, {"$set": product_data})
     if result.modified_count == 0:
         # Check if product exists but no changes were made
@@ -1901,6 +1941,35 @@ async def create_post(post: BlogPost, is_admin: bool = Depends(verify_admin)):
 async def delete_post(post_id: str, is_admin: bool = Depends(verify_admin)):
     await db.posts.delete_one({"post_id": post_id})
     return {"success": True}
+
+@api_router.post("/admin/migrate-slugs")
+async def admin_migrate_slugs(is_admin: bool = Depends(verify_admin)):
+    """Admin only: Generate slugs for all products that don't have one"""
+    try:
+        cursor = db.products.find({})
+        updated_count = 0
+        async for product in cursor:
+            if not product.get("slug"):
+                name = product.get("name", "Product")
+                new_slug = slugify(name)
+                
+                # Ensure uniqueness
+                base_slug = new_slug
+                counter = 1
+                while await db.products.find_one({"slug": new_slug, "product_id": {"$ne": product.get("product_id")}}):
+                    new_slug = f"{base_slug}-{counter}"
+                    counter += 1
+                
+                await db.products.update_one(
+                    {"product_id": product["product_id"]},
+                    {"$set": {"slug": new_slug}}
+                )
+                updated_count += 1
+        
+        return {"success": True, "updated_count": updated_count}
+    except Exception as e:
+        logger.error(f"Migration error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # =========================
 async def get_cart(session_id: Optional[str] = None, request: Request = None):

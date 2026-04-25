@@ -435,7 +435,8 @@ export default function AdminDashboardPage() {
                                 </div>
                                 <div>
                                   <p className="font-bold text-slate-900 leading-none mb-1">{product.name}</p>
-                                  <p className="text-[11px] text-slate-400 font-medium uppercase">{product.brand} • {product.generic_name}</p>
+                                  <p className="text-[11px] text-slate-400 font-medium uppercase mb-1">{product.brand} • {product.generic_name}</p>
+                                  <p className="text-[10px] text-primary/70 font-mono">slug: {product.slug || 'no-slug'}</p>
                                 </div>
                               </div>
                             </td>
