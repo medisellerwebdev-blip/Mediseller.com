@@ -1828,6 +1828,35 @@ async def update_prescription_status(prescription_id: str, data: dict, is_admin:
     status = data.get("status")
     await db.prescriptions.update_one({"prescription_id": prescription_id}, {"$set": {"status": status}})
     return {"success": True}
+    
+@api_router.post("/admin/migrate-slugs")
+async def migrate_slugs(is_admin: bool = Depends(verify_admin)):
+    """Generate unique slugs for products that don't have one"""
+    try:
+        cursor = db.products.find({})
+        updated_count = 0
+        async for product in cursor:
+            if not product.get("slug"):
+                name = product.get("name", "Product")
+                new_slug = slugify(name)
+                
+                # Ensure uniqueness
+                base_slug = new_slug
+                counter = 1
+                while await db.products.find_one({"slug": new_slug, "product_id": {"$ne": product.get("product_id")}}):
+                    new_slug = f"{base_slug}-{counter}"
+                    counter += 1
+                
+                await db.products.update_one(
+                    {"product_id": product["product_id"]},
+                    {"$set": {"slug": new_slug}}
+                )
+                updated_count += 1
+        
+        return {"success": True, "updated_count": updated_count}
+    except Exception as e:
+        logger.error(f"Migration error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Admin Analytics
 @api_router.get("/admin/analytics")
@@ -1941,35 +1970,6 @@ async def create_post(post: BlogPost, is_admin: bool = Depends(verify_admin)):
 async def delete_post(post_id: str, is_admin: bool = Depends(verify_admin)):
     await db.posts.delete_one({"post_id": post_id})
     return {"success": True}
-
-@api_router.post("/admin/migrate-slugs")
-async def admin_migrate_slugs(is_admin: bool = Depends(verify_admin)):
-    """Admin only: Generate slugs for all products that don't have one"""
-    try:
-        cursor = db.products.find({})
-        updated_count = 0
-        async for product in cursor:
-            if not product.get("slug"):
-                name = product.get("name", "Product")
-                new_slug = slugify(name)
-                
-                # Ensure uniqueness
-                base_slug = new_slug
-                counter = 1
-                while await db.products.find_one({"slug": new_slug, "product_id": {"$ne": product.get("product_id")}}):
-                    new_slug = f"{base_slug}-{counter}"
-                    counter += 1
-                
-                await db.products.update_one(
-                    {"product_id": product["product_id"]},
-                    {"$set": {"slug": new_slug}}
-                )
-                updated_count += 1
-        
-        return {"success": True, "updated_count": updated_count}
-    except Exception as e:
-        logger.error(f"Migration error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
 
 # =========================
 async def get_cart(session_id: Optional[str] = None, request: Request = None):

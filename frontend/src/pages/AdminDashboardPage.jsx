@@ -372,6 +372,34 @@ export default function AdminDashboardPage() {
                       <Download className="w-4 h-4 mr-2" />
                       PDF
                     </Button>
+                    <Button 
+                      variant="outline" 
+                      className="rounded-full border-primary/30 text-primary hover:bg-primary/5"
+                      onClick={async () => {
+                        if (!window.confirm('Generate SEO-friendly URLs for all products? This will update roughly 2000+ items.')) return;
+                        try {
+                          toast.loading('Generating URLs...');
+                          const res = await fetch(`${API_URL}/api/admin/migrate-slugs`, { 
+                            method: 'POST', 
+                            credentials: 'include' 
+                          });
+                          if (res.ok) {
+                            const data = await res.json();
+                            toast.success(`Success: ${data.updated_count} URLs generated!`);
+                            fetchData();
+                          } else {
+                            toast.error('Migration failed');
+                          }
+                        } catch (err) {
+                          toast.error('Connection error');
+                        } finally {
+                          toast.dismiss();
+                        }
+                      }}
+                    >
+                      <TrendingUp className="w-4 h-4 mr-2" />
+                      Generate URLs
+                    </Button>
                     <Button className="rounded-full px-6 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20" onClick={handleAddProduct}>
                       <Plus className="w-4 h-4 mr-2" />
                       Add Product

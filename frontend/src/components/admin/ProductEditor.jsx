@@ -202,6 +202,31 @@ export default function ProductEditor({ product, onSave, onClose }) {
               />
             </div>
             <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-500 flex justify-between">
+                URL Slug (Custom URL)
+                <button 
+                  type="button" 
+                  className="text-[10px] text-primary hover:underline"
+                  onClick={() => {
+                    const slug = formData.name.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').trim().replace(/^-+|-+$/g, '');
+                    setFormData(prev => ({ ...prev, slug }));
+                  }}
+                >
+                  Generate from Name
+                </button>
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-2.5 text-slate-400 text-xs">/products/</span>
+                <Input 
+                  name="slug" 
+                  value={formData.slug} 
+                  onChange={handleInputChange} 
+                  placeholder="product-name-here" 
+                  className="pl-[70px] rounded-xl border-slate-200 bg-slate-50/50"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Generic Name</label>
               <Input 
                 name="generic_name" 
@@ -662,34 +687,6 @@ export default function ProductEditor({ product, onSave, onClose }) {
             </div>
             
             <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase text-slate-400">URL Slug (SEO Friendly URL)</label>
-                <div className="flex gap-2">
-                   <div className="flex-1 relative">
-                      <span className="absolute left-3 top-2.5 text-slate-400 text-xs">/products/</span>
-                      <Input 
-                        name="slug" 
-                        value={formData.slug} 
-                        onChange={handleInputChange} 
-                        placeholder="my-awesome-medicine" 
-                        className="pl-[70px] bg-white border-primary/20"
-                      />
-                   </div>
-                   <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm"
-                    className="h-10 text-[10px]"
-                    onClick={() => {
-                       const slug = formData.name.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').trim().replace(/^-+|-+$/g, '');
-                       setFormData(prev => ({ ...prev, slug }));
-                    }}
-                   >
-                     Generate
-                   </Button>
-                </div>
-                <p className="text-[10px] text-slate-400 italic">Changing this will change the URL of the product page. Be careful with existing links.</p>
-              </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-bold uppercase text-slate-400">Meta Title</label>
                 <Input 
