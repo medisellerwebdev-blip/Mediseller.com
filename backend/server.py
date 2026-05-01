@@ -742,6 +742,8 @@ class WhatsAppCommunitiesConfig(BaseModel):
     badge: str = "WhatsApp Communities"
     title: str = "Join Our WhatsApp Communities"
     subtitle: str = "Connect with thousands of patients worldwide. Get exclusive offers, new product alerts, and be the first to know about flash sales and discounts."
+    button_text: str = "View More Communities"
+    initial_count: int = 6
     bottom_text: str = "Turn on notifications to never miss a deal!"
     communities: List[WhatsAppCommunity] = Field(default_factory=lambda: [
         {"name": "Cancer Support Community", "description": "Get updates on cancer medications, new treatments, and exclusive discounts", "members": "5,000+", "link": "https://chat.whatsapp.com/cancer-community", "color": "bg-rose-500", "icon": "Heart"},

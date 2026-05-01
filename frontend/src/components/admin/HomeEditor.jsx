@@ -1157,10 +1157,14 @@ export default function HomeEditor() {
         <CardHeader className="bg-slate-50/50 border-b">
           <CardTitle className="text-lg font-heading text-slate-700">WhatsApp Communities</CardTitle>
         </CardHeader>
-        <CardContent className="p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-lg font-heading text-slate-700">WhatsApp Communities Section</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="p-6 space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Section Badge</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Badge Text</label>
               <Input 
                 value={config.whatsapp_communities?.badge || ''} 
                 onChange={(e) => setConfig({...config, whatsapp_communities: {...config.whatsapp_communities, badge: e.target.value}})}
@@ -1173,14 +1177,31 @@ export default function HomeEditor() {
                 onChange={(e) => setConfig({...config, whatsapp_communities: {...config.whatsapp_communities, title: e.target.value}})}
               />
             </div>
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Section Subtitle</label>
-            <textarea 
-              className="flex min-h-[80px] w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm"
-              value={config.whatsapp_communities?.subtitle || ''} 
-              onChange={(e) => setConfig({...config, whatsapp_communities: {...config.whatsapp_communities, subtitle: e.target.value}})}
-            />
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Load More Button Text</label>
+              <Input 
+                value={config.whatsapp_communities?.button_text || 'View More Communities'} 
+                placeholder="e.g. Load More Communities"
+                onChange={(e) => setConfig({...config, whatsapp_communities: {...config.whatsapp_communities, button_text: e.target.value}})}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Initial Card Count</label>
+              <Input 
+                type="number"
+                min="1"
+                value={config.whatsapp_communities?.initial_count || 6} 
+                onChange={(e) => setConfig({...config, whatsapp_communities: {...config.whatsapp_communities, initial_count: parseInt(e.target.value) || 6}})}
+              />
+            </div>
+            <div className="md:col-span-2 lg:col-span-4 space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Subtitle</label>
+              <textarea 
+                className="flex min-h-[80px] w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
+                value={config.whatsapp_communities?.subtitle || ''} 
+                onChange={(e) => setConfig({...config, whatsapp_communities: {...config.whatsapp_communities, subtitle: e.target.value}})}
+              />
+            </div>
           </div>
           <div className="space-y-2">
             <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Bottom Notice Text</label>

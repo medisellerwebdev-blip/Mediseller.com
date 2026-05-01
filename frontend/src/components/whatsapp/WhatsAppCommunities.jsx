@@ -1,40 +1,56 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '../ui/card';
-import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { MessageCircle, Users, Bell } from 'lucide-react';
+import { MessageCircle, Users } from 'lucide-react';
 import DynamicIcon from '../icons/DynamicIcon';
+import { useConfig } from '../../context/ConfigContext';
 
-export const WhatsAppCommunities = ({ config }) => {
-  const data = config || {};
-  const communityList = data.communities || [];
+const WhatsAppCommunities = () => {
+  const { config } = useConfig();
+  const whatsappConfig = config?.whatsapp_communities || {};
+  const communityList = whatsappConfig.communities || [];
+  
+  // State to manage visible cards
+  const initialLimit = whatsappConfig.initial_count || 6;
+  const [visibleCount, setVisibleCount] = useState(initialLimit);
 
   const handleJoin = (link) => {
     if (link) window.open(link, '_blank');
   };
 
+  const handleLoadMore = () => {
+    // Load next set of cards based on initial_count
+    setVisibleCount(prev => prev + initialLimit);
+  };
+
+  if (!communityList.length) return null;
+
+  const hasMore = visibleCount < communityList.length;
+
   return (
-    <section className="py-16 md:py-24 bg-gradient-to-br from-green-50 to-emerald-50" data-testid="whatsapp-communities-section">
-      <div className="container-custom">
-        <div className="text-center mb-12">
-          <Badge className="bg-green-100 text-green-700 border-green-200 mb-4">
-            <MessageCircle className="w-3 h-3 mr-1" />
-            {data.badge || 'WhatsApp Communities'}
-          </Badge>
-          <h2 className="font-heading text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-            {data.title || "Join Our WhatsApp Communities"}
+    <section className="py-24 bg-slate-50/50 overflow-hidden" id="whatsapp-communities">
+      <div className="container px-4 mx-auto relative">
+        <div className="max-w-3xl mx-auto text-center mb-16 space-y-4">
+          {whatsappConfig.badge && (
+            <span className="inline-block px-4 py-1.5 bg-green-50 text-green-600 text-xs font-bold tracking-widest uppercase rounded-full border border-green-100 shadow-sm">
+              {whatsappConfig.badge}
+            </span>
+          )}
+          <h2 className="text-4xl md:text-5xl font-heading font-black text-slate-900 leading-tight">
+            {whatsappConfig.title || 'Join Our WhatsApp Communities'}
           </h2>
-          <p className="text-slate-600 max-w-2xl mx-auto">
-            {data.subtitle || "Connect with thousands of patients worldwide. Get exclusive offers, new product alerts, and be the first to know about flash sales and discounts."}
+          <p className="text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
+            {whatsappConfig.subtitle}
           </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {communityList.map((community, idx) => {
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {communityList.slice(0, visibleCount).map((community, idx) => {
             return (
               <Card 
                 key={idx} 
-                className="group border-slate-100 hover:border-green-300 shadow-sm hover:shadow-xl transition-all duration-500 rounded-2xl overflow-hidden bg-white"
+                className="group border-slate-100 hover:border-green-300 shadow-sm hover:shadow-xl transition-all duration-500 rounded-2xl overflow-hidden bg-white animate-in fade-in slide-in-from-bottom-4"
+                style={{ animationDelay: `${(idx % initialLimit) * 100}ms` }}
               >
                 <CardContent className="p-7">
                   <div className="flex items-start gap-4 mb-5">
@@ -69,12 +85,34 @@ export const WhatsAppCommunities = ({ config }) => {
           })}
         </div>
 
-        <div className="text-center mt-8">
-          <p className="text-sm text-slate-500">
-            <Bell className="w-4 h-4 inline mr-1" />
-            {data.bottom_text || "Turn on notifications to never miss a deal!"}
-          </p>
-        </div>
+        {/* Dynamic Load More Button */}
+        {hasMore && (
+          <div className="mt-16 text-center animate-in fade-in zoom-in duration-700">
+            <Button 
+              onClick={handleLoadMore}
+              variant="outline"
+              className="px-10 py-7 border-2 border-green-500 text-green-600 hover:bg-green-500 hover:text-white font-bold text-lg rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-green-200"
+            >
+              <div className="flex flex-col items-center gap-1">
+                <span>{whatsappConfig.button_text || 'View More Communities'}</span>
+                <span className="text-[10px] uppercase tracking-widest opacity-70 group-hover:opacity-100 transition-opacity">
+                  Showing {visibleCount} of {communityList.length} Categories
+                </span>
+              </div>
+            </Button>
+          </div>
+        )}
+
+        {whatsappConfig.bottom_text && (
+          <div className="mt-12 text-center text-slate-400 text-sm flex items-center justify-center gap-2">
+            <span className="w-8 h-[1px] bg-slate-200"></span>
+            <span className="flex items-center gap-1.5 italic">
+              <MessageCircle className="w-3 h-3 text-green-500" />
+              {whatsappConfig.bottom_text}
+            </span>
+            <span className="w-8 h-[1px] bg-slate-200"></span>
+          </div>
+        )}
       </div>
     </section>
   );
