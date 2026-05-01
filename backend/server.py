@@ -731,17 +731,26 @@ class PrescriptionCTAConfig(BaseModel):
     whatsapp_cta_text: str = "Message Us on WhatsApp"
 
 class WhatsAppCommunity(BaseModel):
-    title: str
+    name: str
     description: str
+    members: str
     link: str
+    color: str = "bg-primary"
     icon: str = "MessageCircle"
 
 class WhatsAppCommunitiesConfig(BaseModel):
     badge: str = "WhatsApp Communities"
-    title: str = "Join Our Medical Communities"
+    title: str = "Join Our WhatsApp Communities"
     subtitle: str = "Connect with thousands of patients worldwide. Get exclusive offers, new product alerts, and be the first to know about flash sales and discounts."
     bottom_text: str = "Turn on notifications to never miss a deal!"
-    communities: List[WhatsAppCommunity] = Field(default_factory=lambda: [])
+    communities: List[WhatsAppCommunity] = Field(default_factory=lambda: [
+        {"name": "Cancer Support Community", "description": "Get updates on cancer medications, new treatments, and exclusive discounts", "members": "5,000+", "link": "https://chat.whatsapp.com/cancer-community", "color": "bg-rose-500", "icon": "Heart"},
+        {"name": "HIV/AIDS Support", "description": "Connect with others, get medication updates and special pricing alerts", "members": "3,500+", "link": "https://chat.whatsapp.com/hiv-community", "color": "bg-purple-500", "icon": "Pill"},
+        {"name": "Hepatitis Cure Community", "description": "Updates on HCV treatments, success stories, and member-only offers", "members": "4,200+", "link": "https://chat.whatsapp.com/hepatitis-community", "color": "bg-emerald-500", "icon": "Activity"},
+        {"name": "Diabetes & Insulin Group", "description": "Insulin deals, diabetes management tips, and new product launches", "members": "8,000+", "link": "https://chat.whatsapp.com/diabetes-community", "color": "bg-amber-500", "icon": "Zap"},
+        {"name": "Weight Loss Journey", "description": "Wegovy, Ozempic updates, transformation stories, and exclusive offers", "members": "6,500+", "link": "https://chat.whatsapp.com/weight-loss", "color": "bg-green-500", "icon": "Activity"},
+        {"name": "MediSeller Deals & Offers", "description": "Flash sales, new arrivals, and exclusive discount codes for all medications", "members": "12,000+", "link": "https://chat.whatsapp.com/deals", "color": "bg-rose-600", "icon": "Gift"}
+    ])
 
 class GlobalCTAConfig(BaseModel):
     title: str = "Need Help Finding Your Medication?"
@@ -1064,6 +1073,26 @@ async def root():
 @api_router.get("/site-config")
 async def get_site_config():
     config_doc = await db.site_config.find_one({"active": True})
+    
+    # --- Emergency Auto-Fix for WhatsApp Communities ---
+    # If the config exists but WhatsApp data is old/missing, we update it automatically
+    if config_doc:
+        whatsapp = config_doc.get("whatsapp_communities", {})
+        comms = whatsapp.get("communities", [])
+        # Check if we need to fix it (fewer than 6 items or missing the 'members' field)
+        needs_fix = len(comms) < 6 or (len(comms) > 0 and "members" not in comms[0])
+        
+        if needs_fix:
+            logger.info("Auto-fixing WhatsApp Communities configuration...")
+            default_whatsapp = WhatsAppCommunitiesConfig().model_dump()
+            await db.site_config.update_one(
+                {"active": True},
+                {"$set": {"whatsapp_communities": default_whatsapp}}
+            )
+            # Fetch the updated version
+            config_doc = await db.site_config.find_one({"active": True})
+    # --------------------------------------------------
+
     if not config_doc:
         # Generate a completely default config using the Pydantic model
         default_obj = SiteConfig(active=True)

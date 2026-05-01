@@ -2,45 +2,15 @@ import React from 'react';
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { MessageCircle, Users, Gift, Bell, Pill, Heart, Activity, Zap } from 'lucide-react';
+import { MessageCircle, Users, Bell } from 'lucide-react';
+import DynamicIcon from '../icons/DynamicIcon';
 
 export const WhatsAppCommunities = ({ config }) => {
   const data = config || {};
-  const communityList = data.communities || [
-    {
-      name: 'Cancer Support Community',
-      description: 'Get updates on cancer medications, new treatments, and exclusive discounts',
-      members: '5,000+',
-      link: 'https://chat.whatsapp.com/cancer-community',
-      color: 'bg-rose-500'
-    },
-    {
-      name: 'HIV/AIDS Support',
-      description: 'Connect with others, get medication updates and special pricing alerts',
-      members: '3,500+',
-      link: 'https://chat.whatsapp.com/hiv-community',
-      color: 'bg-purple-500'
-    },
-    {
-      name: 'Hepatitis Cure Community',
-      description: 'Updates on HCV treatments, success stories, and member-only offers',
-      members: '4,200+',
-      link: 'https://chat.whatsapp.com/hepatitis-community',
-      color: 'bg-emerald-500'
-    }
-  ];
+  const communityList = data.communities || [];
 
   const handleJoin = (link) => {
     if (link) window.open(link, '_blank');
-  };
-
-  const getIcon = (name) => {
-    if (name?.toLowerCase().includes('cancer')) return Heart;
-    if (name?.toLowerCase().includes('hiv')) return Pill;
-    if (name?.toLowerCase().includes('hepatitis')) return Activity;
-    if (name?.toLowerCase().includes('diabetes')) return Zap;
-    if (name?.toLowerCase().includes('weight')) return Activity;
-    return MessageCircle;
   };
 
   return (
@@ -61,7 +31,6 @@ export const WhatsAppCommunities = ({ config }) => {
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {communityList.map((community, idx) => {
-            const Icon = getIcon(community.name);
             return (
               <Card 
                 key={idx} 
@@ -71,13 +40,13 @@ export const WhatsAppCommunities = ({ config }) => {
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
                     <div className={`w-12 h-12 ${community.color || 'bg-primary'} rounded-xl flex items-center justify-center text-white flex-shrink-0 group-hover:scale-110 transition-transform`}>
-                      <Icon className="w-6 h-6" />
+                      <DynamicIcon name={community.icon || 'MessageCircle'} className="w-6 h-6" fallback={MessageCircle} />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-heading font-semibold text-lg mb-1">{community.name}</h3>
+                      <h3 className="font-heading font-semibold text-lg mb-1">{community.name || community.title}</h3>
                       <div className="flex items-center gap-2 mb-2">
                         <Users className="w-4 h-4 text-slate-400" />
-                        <span className="text-sm text-slate-500">{community.members} members</span>
+                        <span className="text-sm text-slate-500">{community.members || '0+'} members</span>
                       </div>
                     </div>
                   </div>

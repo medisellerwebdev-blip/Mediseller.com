@@ -1201,14 +1201,14 @@ export default function HomeEditor() {
                   }}><Trash2 className="w-4 h-4" /></Button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input placeholder="Title" value={comm.title} onChange={(e) => {
+                  <Input placeholder="Name (e.g. Cancer Support)" value={comm.name || comm.title} onChange={(e) => {
                     const newComms = [...config.whatsapp_communities.communities];
-                    newComms[idx].title = e.target.value;
+                    newComms[idx].name = e.target.value;
                     setConfig({...config, whatsapp_communities: {...config.whatsapp_communities, communities: newComms}});
                   }} />
-                  <Input placeholder="Icon Name" value={comm.icon} onChange={(e) => {
+                  <Input placeholder="Members (e.g. 5,000+)" value={comm.members} onChange={(e) => {
                     const newComms = [...config.whatsapp_communities.communities];
-                    newComms[idx].icon = e.target.value;
+                    newComms[idx].members = e.target.value;
                     setConfig({...config, whatsapp_communities: {...config.whatsapp_communities, communities: newComms}});
                   }} />
                 </div>
@@ -1222,10 +1222,22 @@ export default function HomeEditor() {
                   newComms[idx].link = e.target.value;
                   setConfig({...config, whatsapp_communities: {...config.whatsapp_communities, communities: newComms}});
                 }} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input placeholder="Color (e.g. bg-rose-500)" value={comm.color} onChange={(e) => {
+                    const newComms = [...config.whatsapp_communities.communities];
+                    newComms[idx].color = e.target.value;
+                    setConfig({...config, whatsapp_communities: {...config.whatsapp_communities, communities: newComms}});
+                  }} />
+                  <Input placeholder="Icon Name (e.g. Heart)" value={comm.icon} onChange={(e) => {
+                    const newComms = [...config.whatsapp_communities.communities];
+                    newComms[idx].icon = e.target.value;
+                    setConfig({...config, whatsapp_communities: {...config.whatsapp_communities, communities: newComms}});
+                  }} />
+                </div>
               </div>
             ))}
             <Button variant="outline" className="w-full border-dashed" onClick={() => {
-              const newComms = [...(config.whatsapp_communities?.communities || []), {title: '', description: '', link: '', icon: 'Ribbon'}];
+              const newComms = [...(config.whatsapp_communities?.communities || []), {name: '', description: '', members: '', link: '', color: 'bg-primary', icon: 'MessageCircle'}];
               setConfig({...config, whatsapp_communities: {...config.whatsapp_communities, communities: newComms}});
             }}>
               <Plus className="w-4 h-4 mr-2" /> Add Community
