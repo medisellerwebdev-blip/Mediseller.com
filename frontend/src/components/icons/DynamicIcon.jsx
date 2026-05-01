@@ -33,7 +33,10 @@ import {
   AlertCircle,
   DollarSign,
   FileSearch,
-  Check
+  Check,
+  Heart,
+  Pill,
+  Gift
 } from 'lucide-react';
 
 const IconMap = {
@@ -42,7 +45,7 @@ const IconMap = {
   Globe, FileText, Clock, Package, Activity, Ribbon, 
   ShieldAlert, Zap, Scale, TrendingDown, Target, Eye, Calendar,
   Search, Edit, Trash2, Plus, Settings, AlertCircle, DollarSign,
-  FileSearch, Check
+  FileSearch, Check, Heart, Pill, Gift
 };
 
 const DynamicIcon = ({ name, className, fallback = Package }) => {

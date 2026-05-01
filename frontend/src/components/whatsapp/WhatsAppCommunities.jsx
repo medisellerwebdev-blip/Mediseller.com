@@ -34,29 +34,33 @@ export const WhatsAppCommunities = ({ config }) => {
             return (
               <Card 
                 key={idx} 
-                className="group border-slate-200 hover:border-green-300 hover:shadow-lg transition-all duration-300"
-                data-testid={`community-card-${idx}`}
+                className="group border-slate-100 hover:border-green-300 shadow-sm hover:shadow-xl transition-all duration-500 rounded-2xl overflow-hidden bg-white"
               >
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className={`w-12 h-12 ${community.color || 'bg-primary'} rounded-xl flex items-center justify-center text-white flex-shrink-0 group-hover:scale-110 transition-transform`}>
-                      <DynamicIcon name={community.icon || 'MessageCircle'} className="w-6 h-6" fallback={MessageCircle} />
+                <CardContent className="p-7">
+                  <div className="flex items-start gap-4 mb-5">
+                    <div className={`w-14 h-14 ${community.color || 'bg-primary'} rounded-2xl flex items-center justify-center text-white flex-shrink-0 shadow-inner group-hover:rotate-6 transition-transform duration-300`}>
+                      <DynamicIcon name={community.icon || 'MessageCircle'} className="w-7 h-7" fallback={MessageCircle} />
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-heading font-semibold text-lg mb-1">{community.name || community.title}</h3>
-                      <div className="flex items-center gap-2 mb-2">
+                    <div className="flex-1 pt-1">
+                      <h3 className="font-heading font-bold text-xl text-slate-800 leading-tight mb-1 group-hover:text-green-600 transition-colors">
+                        {community.name || community.title}
+                      </h3>
+                      <div className="flex items-center gap-2">
                         <Users className="w-4 h-4 text-slate-400" />
-                        <span className="text-sm text-slate-500">{community.members || '0+'} members</span>
+                        <span className="text-sm font-medium text-slate-500">{community.members || '0+'} members</span>
                       </div>
                     </div>
                   </div>
-                  <p className="text-sm text-slate-600 mt-3 mb-4">{community.description}</p>
+                  
+                  <p className="text-[15px] leading-relaxed text-slate-600 mb-6 line-clamp-2 min-h-[44px]">
+                    {community.description}
+                  </p>
+                  
                   <Button 
                     onClick={() => handleJoin(community.link)}
-                    className="w-full bg-green-500 hover:bg-green-600 rounded-full"
-                    data-testid={`join-community-${idx}`}
+                    className="w-full bg-[#12c864] hover:bg-[#0fa150] text-white font-bold py-6 rounded-2xl flex items-center justify-center gap-2 group/btn transition-all duration-300 shadow-md hover:shadow-lg active:scale-[0.98]"
                   >
-                    <MessageCircle className="w-4 h-4 mr-2" />
+                    <MessageCircle className="w-5 h-5 group-hover/btn:animate-bounce" />
                     Join Community
                   </Button>
                 </CardContent>
